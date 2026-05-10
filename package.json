@@ -30,13 +30,14 @@
     "type": "git",
     "url": "git+https://github.com/rocket-lease/contracts.git"
   },
-  "dependencies": {
+  "peerDependencies": {
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "zod": "^3.23.8"
   },
   "packageManager": "pnpm@11.0.8",
   "pnpm": {
