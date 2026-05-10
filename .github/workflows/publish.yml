@@ -44,7 +44,5 @@ jobs:
             exit 1
           fi
 
-      - name: Publish to npm
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npm (Trusted Publisher / OIDC)
+        run: pnpm publish --no-git-checks --access public --provenance
