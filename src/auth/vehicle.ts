@@ -9,8 +9,8 @@ export const CreateVehicleRequestSchema = z.object({
     year: z.number().int().min(1900).max(new Date().getFullYear() + 1),
     passengers: z.number().int().min(1),
     trunkLiters: z.number().min(0),
-    isAccessible: z.boolean(),
     transmission: TransmissionSchema,
+    isAccessible: z.boolean(),
     photos: z.array(z.string().url("Invalid photo URL format")).min(1),
     color: z.string().min(1, "Color is required"),
     mileage: z.number().min(0, "Mileage cannot be negative"),
@@ -27,9 +27,7 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
     passengers: true,
     trunkLiters: true,
     transmission: true,
-}).extend({
-    enabled: z.boolean().optional(),
-    isAccessible: z.boolean().optional(),
+    isAccessible: true,
 });
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
@@ -45,7 +43,6 @@ export const GetVehicleResponseSchema = z.object({
     brand: z.string().min(1),
     model: z.string().min(1),
     year: z.number().int(),
-    enabled: z.boolean(),
     passengers: z.number().int(),
     trunkLiters: z.number(),
     transmission: TransmissionSchema,
