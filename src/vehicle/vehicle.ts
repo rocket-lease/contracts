@@ -9,6 +9,7 @@ export const CreateVehicleRequestSchema = z.object({
     year: z.number().int().min(1900).max(new Date().getFullYear() + 1),
     passengers: z.number().int().min(1),
     trunkLiters: z.number().min(0),
+    isAccessible: z.boolean(),
     transmission: TransmissionSchema,
     photos: z.array(z.string().url("Invalid photo URL format")).min(1),
     color: z.string().min(1, "Color is required"),
