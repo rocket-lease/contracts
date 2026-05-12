@@ -11,8 +11,8 @@ export const LoginUserRequestSchema = z.object({
 export type LoginUserRequest = z.infer<typeof LoginUserRequestSchema>;
 
 export const LoginUserResponseSchema = z.object({
-  access_token: z.string(),
-  refresh_token: z.string(),
-  expires_in: z.number(),
+  access_token: z.string().min(1),
+  refresh_token: z.string().min(1),
+  expires_in: z.number().int().positive(),
 });
 export type LoginUserResponse = z.infer<typeof LoginUserResponseSchema>;
