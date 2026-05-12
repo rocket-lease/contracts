@@ -27,3 +27,25 @@ export const GetVehicleResponseSchema = z.object({
     description: z.string().nullable()
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
+
+export const GetVehicleDetailsResponseSchema = z.object({
+    id: z.string(),
+    brand: z.string().min(1, "Brand is required"),
+    model: z.string().min(1, "Model is required"),
+    year: z.number().int(),
+    renter: z.object({
+        id: z.string(),
+        name: z.string().min(1, "Name is required"),
+    }),
+    dailyPrice: z.number().int(),
+    description: z.string().nullable(),
+    available: z.boolean(),
+    images: z.array(z.string()),
+    features: z.object({
+        automatic: z.boolean(),
+        kilometers: z.number().int(),
+        trunkLiters: z.number().int(),
+    }),
+    accessFeatures: z.array(z.string()),
+});
+export type GetVehicleDetailsResponse = z.infer<typeof GetVehicleDetailsResponseSchema>;
