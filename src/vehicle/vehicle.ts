@@ -29,7 +29,7 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
 }).extend({
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
-});
+}).strict();
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
 export const CreateVehicleResponseSchema = z.object({
