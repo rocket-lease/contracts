@@ -47,7 +47,7 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
     characteristics: z.array(CharacteristicSchema).optional()
-});
+}).strict();
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
 export const CreateVehicleResponseSchema = z.object({
