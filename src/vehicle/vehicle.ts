@@ -2,6 +2,18 @@ import { z } from 'zod';
 
 const TransmissionSchema = z.enum(['Manual', 'Automatico', 'Semiautomatico']);
 
+export const CharacteristicSchema = z.enum([
+    'GPS',
+    'BABY_SEAT',
+    'SUNROOF',
+    'PET_FRIENDLY',
+    'WIFI',
+    'USB_CHARGER',
+    'AUX_CABLE',
+    'BLUETOOTH',
+]);
+export type Characteristic = z.infer<typeof CharacteristicSchema>;
+
 export const CreateVehicleRequestSchema = z.object({
     plate: z.string().trim().min(1, "Plate cannot be empty"),
     brand: z.string().min(1, "Brand is required"),
@@ -11,14 +23,15 @@ export const CreateVehicleRequestSchema = z.object({
     trunkLiters: z.number().min(0),
     isAccessible: z.boolean(),
     transmission: TransmissionSchema,
-    photos: z.array(z.string().url("Invalid photo URL format")).min(1),
+    photos: z.array(z.string()).min(1),
     color: z.string().min(1, "Color is required"),
     mileage: z.number().min(0, "Mileage cannot be negative"),
     basePrice: z.number().gt(0, "Base price must be greater than zero"),
     description: z.string().nullable(),
-    availableFrom: z.string().date("Invalid date format"),
+    availableFrom: z.string(),
     province: z.string().min(1, "Province ISO code is required"),
-    city: z.string().min(1, "City name is required")
+    city: z.string().min(1, "City name is required"),
+    characteristics: z.array(CharacteristicSchema).optional()
 });
 export type CreateVehicleRequest = z.infer<typeof CreateVehicleRequestSchema>;
 
@@ -33,7 +46,8 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
 }).extend({
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
-}).strict();
+    characteristics: z.array(CharacteristicSchema).optional()
+});
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
 export const CreateVehicleResponseSchema = z.object({
@@ -53,13 +67,26 @@ export const GetVehicleResponseSchema = z.object({
     trunkLiters: z.number(),
     transmission: TransmissionSchema,
     isAccessible: z.boolean(),
-    photos: z.array(z.string().url()),
+    photos: z.array(z.string()),
     color: z.string().min(1),
     mileage: z.number().min(0),
     basePrice: z.number().gt(0),
     description: z.string().nullable(),
-    availableFrom: z.string().date(),
+    availableFrom: z.string(),
     province: z.string().min(1),
-    city: z.string().min(1)
+    city: z.string().min(1),
+    characteristics: z.array(CharacteristicSchema).optional()
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
+
+export const VehicleCharacteristicsResponseSchema = z.object({
+    characteristics: z.array(CharacteristicSchema)
+});
+export type VehicleCharacteristicsResponse = z.infer<typeof VehicleCharacteristicsResponseSchema>;
+
+export const VehicleSearchPreferencesSchema = z.object({
+    transmission: TransmissionSchema.optional(),
+    maxPriceDaily: z.number().optional(),
+    characteristics: z.array(CharacteristicSchema).optional()
+});
+export type VehicleSearchPreferences = z.infer<typeof VehicleSearchPreferencesSchema>;
