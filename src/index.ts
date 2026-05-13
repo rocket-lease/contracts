@@ -1,6 +1,7 @@
 export * from './auth/register';
 export * from './auth/login';
 export * from './auth/password-reset';
+export * from './auth/verification';
 export * from './vehicle/vehicle';
 export * from './profile/profile';
 export * from './errors/error-codes';
