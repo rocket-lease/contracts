@@ -15,10 +15,14 @@ export const CreateVehicleRequestSchema = z.object({
     color: z.string().min(1, "Color is required"),
     mileage: z.number().min(0, "Mileage cannot be negative"),
     basePrice: z.number().gt(0, "Base price must be greater than zero"),
+<<<<<<< HEAD
     description: z.string().nullable(),
     availableFrom: z.string().date("Invalid date format"),
     province: z.string().min(1, "Province ISO code is required"),
     city: z.string().min(1, "City name is required")
+=======
+    description: z.string().nullable()
+>>>>>>> 8346ef43f52ba29866ed4db4979dd8b2c4bb8a3b
 });
 export type CreateVehicleRequest = z.infer<typeof CreateVehicleRequestSchema>;
 
@@ -33,7 +37,11 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
 }).extend({
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
+<<<<<<< HEAD
 }).strict();
+=======
+});
+>>>>>>> 8346ef43f52ba29866ed4db4979dd8b2c4bb8a3b
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
 export const CreateVehicleResponseSchema = z.object({
@@ -57,9 +65,13 @@ export const GetVehicleResponseSchema = z.object({
     color: z.string().min(1),
     mileage: z.number().min(0),
     basePrice: z.number().gt(0),
+<<<<<<< HEAD
     description: z.string().nullable(),
     availableFrom: z.string().date(),
     province: z.string().min(1),
     city: z.string().min(1)
+=======
+    description: z.string().nullable()
+>>>>>>> 8346ef43f52ba29866ed4db4979dd8b2c4bb8a3b
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
