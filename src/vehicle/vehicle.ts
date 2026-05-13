@@ -55,6 +55,16 @@ export const CreateVehicleResponseSchema = z.object({
 });
 export type CreateVehicleResponse = z.infer<typeof CreateVehicleResponseSchema>;
 
+export const VehicleOwnerSchema = z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    avatarUrl: z.string().nullable(),
+    level: z.enum(['bronze', 'silver', 'gold', 'platinum']),
+    reputationScore: z.number(),
+    verified: z.boolean(),
+});
+export type VehicleOwner = z.infer<typeof VehicleOwnerSchema>;
+
 export const GetVehicleResponseSchema = z.object({
     id: z.string().uuid(),
     ownerId: z.string().uuid(),
@@ -75,7 +85,8 @@ export const GetVehicleResponseSchema = z.object({
     availableFrom: z.string(),
     province: z.string().min(1),
     city: z.string().min(1),
-    characteristics: z.array(CharacteristicSchema).optional()
+    characteristics: z.array(CharacteristicSchema).optional(),
+    owner: VehicleOwnerSchema.optional(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 
