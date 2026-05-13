@@ -1,6 +1,6 @@
 {
   "name": "@rocket-lease/contracts",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Shared Zod schemas, types, and error codes between api and web.",
   "type": "module",
   "main": "./dist/index.cjs",
