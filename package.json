@@ -1,6 +1,6 @@
 {
   "name": "@rocket-lease/contracts",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "Shared Zod schemas, types, and error codes between api and web.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -41,6 +41,8 @@
   },
   "packageManager": "pnpm@11.0.8",
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
