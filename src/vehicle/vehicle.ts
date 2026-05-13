@@ -9,12 +9,16 @@ export const CreateVehicleRequestSchema = z.object({
     year: z.number().int().min(1900).max(new Date().getFullYear() + 1),
     passengers: z.number().int().min(1),
     trunkLiters: z.number().min(0),
+    isAccessible: z.boolean(),
     transmission: TransmissionSchema,
     photos: z.array(z.string().url("Invalid photo URL format")).min(1),
     color: z.string().min(1, "Color is required"),
     mileage: z.number().min(0, "Mileage cannot be negative"),
     basePrice: z.number().gt(0, "Base price must be greater than zero"),
-    description: z.string().nullable()
+    description: z.string().nullable(),
+    availableFrom: z.string().date("Invalid date format"),
+    province: z.string().min(1, "Province ISO code is required"),
+    city: z.string().min(1, "City name is required")
 });
 export type CreateVehicleRequest = z.infer<typeof CreateVehicleRequestSchema>;
 
@@ -53,6 +57,9 @@ export const GetVehicleResponseSchema = z.object({
     color: z.string().min(1),
     mileage: z.number().min(0),
     basePrice: z.number().gt(0),
-    description: z.string().nullable()
+    description: z.string().nullable(),
+    availableFrom: z.string().date(),
+    province: z.string().min(1),
+    city: z.string().min(1)
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
