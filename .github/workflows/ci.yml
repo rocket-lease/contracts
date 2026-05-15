@@ -1,0 +1,29 @@
+name: CI
+
+# Runs on PRs only. No deploy artifact here (contracts is consumed as source).
+on:
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  ci:
+    name: Typecheck + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@11.0.8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
