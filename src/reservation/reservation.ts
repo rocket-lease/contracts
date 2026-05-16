@@ -142,6 +142,7 @@ export const OwnerReservationSchema = z.object({
   status: ReservationStatusSchema,
   startAt: z.string().datetime(),
   endAt: z.string().datetime(),
+  holdExpiresAt: z.string().datetime().nullable(),
   totalCents: z.number().int().nonnegative(),
   currency: z.literal('ARS'),
   paymentMethod: PaymentMethodSchema.nullable(),
