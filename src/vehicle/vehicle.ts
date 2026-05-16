@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserPublicSummarySchema } from '../profile/profile';
 
 const TransmissionSchema = z.enum(['Manual', 'Automatico', 'Semiautomatico']);
 
@@ -55,10 +56,7 @@ export const CreateVehicleResponseSchema = z.object({
 });
 export type CreateVehicleResponse = z.infer<typeof CreateVehicleResponseSchema>;
 
-export const VehicleOwnerSchema = z.object({
-    id: z.string().uuid(),
-    name: z.string(),
-    avatarUrl: z.string().nullable(),
+export const VehicleOwnerSchema = UserPublicSummarySchema.extend({
     level: z.enum(['bronze', 'silver', 'gold', 'platinum']),
     reputationScore: z.number(),
     verified: z.boolean(),

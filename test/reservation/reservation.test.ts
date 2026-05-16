@@ -7,7 +7,6 @@ import {
   ConfirmReservationPaymentRequestSchema,
   ConfirmReservationPaymentResponseSchema,
   GetReservationResponseSchema,
-  ListMyReservationsResponseSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -209,16 +208,4 @@ describe('GetReservationResponseSchema', () => {
   });
 });
 
-describe('ListMyReservationsResponseSchema', () => {
-  it('parses empty list', () => {
-    const r = ListMyReservationsResponseSchema.parse({ items: [] });
-    expect(r.items).toEqual([]);
-  });
-
-  it('rejects items not an array', () => {
-    expect(() =>
-      ListMyReservationsResponseSchema.parse({ items: 'no' }),
-    ).toThrow();
-  });
-});
 

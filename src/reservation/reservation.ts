@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserPublicSummarySchema } from '../profile/profile';
 
 export const ReservationStatusSchema = z.enum([
   'pending_payment',
@@ -71,14 +72,6 @@ export type ReservationVehicleSummary = z.infer<
   typeof ReservationVehicleSummarySchema
 >;
 
-export const ReservationRentadorSummarySchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  avatarUrl: z.string().nullable(),
-});
-export type ReservationRentadorSummary = z.infer<
-  typeof ReservationRentadorSummarySchema
->;
 
 export const GetReservationResponseSchema = z.object({
   id: z.string().uuid(),
@@ -97,7 +90,7 @@ export const GetReservationResponseSchema = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
-  rentador: ReservationRentadorSummarySchema,
+  rentador: UserPublicSummarySchema,
 });
 export type GetReservationResponse = z.infer<
   typeof GetReservationResponseSchema
@@ -111,12 +104,6 @@ export type CancelReservationResponse = z.infer<
   typeof CancelReservationResponseSchema
 >;
 
-export const ListMyReservationsResponseSchema = z.object({
-  items: z.array(GetReservationResponseSchema),
-});
-export type ListMyReservationsResponse = z.infer<
-  typeof ListMyReservationsResponseSchema
->;
 
 export const BusyRangeSchema = z.object({
   startAt: z.string().datetime(),

@@ -13,6 +13,13 @@ export const VehiclePreferencesSchema = z.object({
 });
 export type VehiclePreferences = z.infer<typeof VehiclePreferencesSchema>;
 
+export const UserPublicSummarySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  avatarUrl: z.string().nullable(),
+});
+export type UserPublicSummary = z.infer<typeof UserPublicSummarySchema>;
+
 export const GetMyProfileResponseSchema = z.object({
   id: z.string().min(1),
   name: z.string().trim().min(1).max(100),
