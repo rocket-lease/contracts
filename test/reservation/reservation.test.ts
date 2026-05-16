@@ -60,9 +60,20 @@ describe('CreateReservationRequestSchema', () => {
     expect(r.vehicleId).toBe(validUuid);
   });
 
-  it('rejects contractAccepted=false', () => {
+  it('accepts contractAccepted=false at the schema level (domain enforces the rule)', () => {
+    const r = CreateReservationRequestSchema.parse({
+      ...base,
+      contractAccepted: false,
+    });
+    expect(r.contractAccepted).toBe(false);
+  });
+
+  it('rejects non-boolean contractAccepted', () => {
     expect(() =>
-      CreateReservationRequestSchema.parse({ ...base, contractAccepted: false }),
+      CreateReservationRequestSchema.parse({
+        ...base,
+        contractAccepted: 'yes' as unknown as boolean,
+      }),
     ).toThrow();
   });
 

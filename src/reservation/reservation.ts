@@ -23,7 +23,7 @@ export const CreateReservationRequestSchema = z
     vehicleId: z.string().uuid(),
     startAt: z.string().datetime(),
     endAt: z.string().datetime(),
-    contractAccepted: z.literal(true),
+    contractAccepted: z.boolean(),
   })
   .refine((d) => new Date(d.endAt).getTime() > new Date(d.startAt).getTime(), {
     message: 'endAt must be after startAt',
