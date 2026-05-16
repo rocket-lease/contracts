@@ -8,3 +8,4 @@ export * from './errors/error-codes';
 export * from './errors/problem-details';
 export * from './schemas/favorite.schema';
 export * from './reservation/reservation';
+export * from './reservation/owner';
