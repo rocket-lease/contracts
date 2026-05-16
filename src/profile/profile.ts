@@ -13,6 +13,20 @@ export const VehiclePreferencesSchema = z.object({
 });
 export type VehiclePreferences = z.infer<typeof VehiclePreferencesSchema>;
 
+/**
+ * Identidad pública mínima de un usuario: lo justo para renderizar su avatar y
+ * nombre en un listado o card sin exponer datos privados (email, dni, teléfono,
+ * preferencias). Si una vista necesita además señales de confianza pública —
+ * nivel, reputación, verificación — debe extender este schema en vez de
+ * redefinir los mismos campos.
+ */
+export const UserPublicSummarySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  avatarUrl: z.string().nullable(),
+});
+export type UserPublicSummary = z.infer<typeof UserPublicSummarySchema>;
+
 export const GetMyProfileResponseSchema = z.object({
   id: z.string().min(1),
   name: z.string().trim().min(1).max(100),

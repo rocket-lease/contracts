@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { UserPublicSummarySchema } from '../profile/profile';
+import type { UserPublicSummary } from '../profile/profile';
 
 export const ReservationStatusSchema = z.enum([
   'pending_payment',
@@ -71,14 +73,8 @@ export type ReservationVehicleSummary = z.infer<
   typeof ReservationVehicleSummarySchema
 >;
 
-export const ReservationRentadorSummarySchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  avatarUrl: z.string().nullable(),
-});
-export type ReservationRentadorSummary = z.infer<
-  typeof ReservationRentadorSummarySchema
->;
+export const ReservationRentadorSummarySchema = UserPublicSummarySchema;
+export type ReservationRentadorSummary = UserPublicSummary;
 
 export const GetReservationResponseSchema = z.object({
   id: z.string().uuid(),

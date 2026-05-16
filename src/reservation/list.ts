@@ -5,6 +5,8 @@
 // El response siempre incluye conductor + rentador + vehicle para que la UI
 // pueda renderizar ambos lados sin segundos round-trips.
 import { z } from 'zod';
+import { UserPublicSummarySchema } from '../profile/profile';
+import type { UserPublicSummary } from '../profile/profile';
 import {
   PaymentMethodSchema,
   ReservationRentadorSummarySchema,
@@ -12,14 +14,8 @@ import {
   ReservationVehicleSummarySchema,
 } from './reservation';
 
-export const ReservationConductorSummarySchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  avatarUrl: z.string().nullable(),
-});
-export type ReservationConductorSummary = z.infer<
-  typeof ReservationConductorSummarySchema
->;
+export const ReservationConductorSummarySchema = UserPublicSummarySchema;
+export type ReservationConductorSummary = UserPublicSummary;
 
 export const ReservationListItemSchema = z.object({
   id: z.string().uuid(),
