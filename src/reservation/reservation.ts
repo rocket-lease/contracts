@@ -111,12 +111,6 @@ export type CancelReservationResponse = z.infer<
   typeof CancelReservationResponseSchema
 >;
 
-export const ListMyReservationsResponseSchema = z.object({
-  items: z.array(GetReservationResponseSchema),
-});
-export type ListMyReservationsResponse = z.infer<
-  typeof ListMyReservationsResponseSchema
->;
 
 export const BusyRangeSchema = z.object({
   startAt: z.string().datetime(),

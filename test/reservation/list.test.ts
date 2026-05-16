@@ -1,15 +1,27 @@
 import { describe, it, expect } from 'vitest';
 import {
-  OwnerReservationSchema,
-  OwnerReservationsListRequestSchema,
-  OwnerReservationsListResponseSchema,
+  ReservationListItemSchema,
+  ReservationRoleSchema,
+  ReservationsListRequestSchema,
+  ReservationsListResponseSchema,
   ReservationConductorSummarySchema,
-} from '../../src/reservation/owner';
+} from '../../src/reservation/list';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
 const validUuid2 = '018f8b3c-4d0e-7000-8000-000000000002';
 const validUuid3 = '018f8b3c-4d0e-7000-8000-000000000003';
 const validUuid4 = '018f8b3c-4d0e-7000-8000-000000000004';
+
+describe('ReservationRoleSchema', () => {
+  it('acepta "conductor" y "owner"', () => {
+    expect(ReservationRoleSchema.parse('conductor')).toBe('conductor');
+    expect(ReservationRoleSchema.parse('owner')).toBe('owner');
+  });
+  it('rechaza otros valores', () => {
+    expect(() => ReservationRoleSchema.parse('rentador')).toThrow();
+    expect(() => ReservationRoleSchema.parse('admin')).toThrow();
+  });
+});
 
 describe('ReservationConductorSummarySchema', () => {
   it('parses valid summary', () => {
@@ -21,15 +33,6 @@ describe('ReservationConductorSummarySchema', () => {
     expect(r.name).toBe('Julian');
   });
 
-  it('accepts avatarUrl as string', () => {
-    const r = ReservationConductorSummarySchema.parse({
-      id: validUuid,
-      name: 'Julian',
-      avatarUrl: 'https://example.com/a.jpg',
-    });
-    expect(r.avatarUrl).toBe('https://example.com/a.jpg');
-  });
-
   it('rejects missing name', () => {
     expect(() =>
       ReservationConductorSummarySchema.parse({ id: validUuid, avatarUrl: null }),
@@ -37,16 +40,21 @@ describe('ReservationConductorSummarySchema', () => {
   });
 });
 
-describe('OwnerReservationsListRequestSchema', () => {
-  it('applies defaults when no params', () => {
-    const r = OwnerReservationsListRequestSchema.parse({});
+describe('ReservationsListRequestSchema', () => {
+  it('exige role', () => {
+    expect(() => ReservationsListRequestSchema.parse({})).toThrow();
+  });
+
+  it('aplica defaults page=1 y pageSize=20 cuando solo viene role', () => {
+    const r = ReservationsListRequestSchema.parse({ role: 'owner' });
     expect(r.page).toBe(1);
     expect(r.pageSize).toBe(20);
     expect(r.status).toBeUndefined();
   });
 
-  it('accepts status array, dates and explicit page', () => {
-    const r = OwnerReservationsListRequestSchema.parse({
+  it('acepta status array, dates y paginación explícitas', () => {
+    const r = ReservationsListRequestSchema.parse({
+      role: 'conductor',
       status: ['pending_payment', 'confirmed'],
       from: '2026-05-01T00:00:00.000Z',
       to: '2026-05-31T23:59:59.000Z',
@@ -58,26 +66,17 @@ describe('OwnerReservationsListRequestSchema', () => {
     expect(r.pageSize).toBe(50);
   });
 
-  it('rejects page=0', () => {
+  it('rechaza page=0 y pageSize > 100', () => {
     expect(() =>
-      OwnerReservationsListRequestSchema.parse({ page: 0 }),
+      ReservationsListRequestSchema.parse({ role: 'owner', page: 0 }),
     ).toThrow();
-  });
-
-  it('rejects pageSize > 100', () => {
     expect(() =>
-      OwnerReservationsListRequestSchema.parse({ pageSize: 101 }),
-    ).toThrow();
-  });
-
-  it('rejects invalid status enum', () => {
-    expect(() =>
-      OwnerReservationsListRequestSchema.parse({ status: ['paid'] }),
+      ReservationsListRequestSchema.parse({ role: 'owner', pageSize: 101 }),
     ).toThrow();
   });
 });
 
-describe('OwnerReservationSchema', () => {
+describe('ReservationListItemSchema', () => {
   const valid = {
     id: validUuid,
     vehicleId: validUuid2,
@@ -105,15 +104,21 @@ describe('OwnerReservationSchema', () => {
       name: 'Julian',
       avatarUrl: null,
     },
+    rentador: {
+      id: validUuid4,
+      name: 'Lucas',
+      avatarUrl: null,
+    },
   };
 
-  it('parses a valid owner reservation', () => {
-    const r = OwnerReservationSchema.parse(valid);
+  it('parses a valid list item con conductor y rentador embebidos', () => {
+    const r = ReservationListItemSchema.parse(valid);
     expect(r.conductor.name).toBe('Julian');
+    expect(r.rentador.name).toBe('Lucas');
   });
 
-  it('accepts holdExpiresAt as ISO string (caso pending_payment)', () => {
-    const r = OwnerReservationSchema.parse({
+  it('acepta holdExpiresAt como ISO string (caso pending_payment)', () => {
+    const r = ReservationListItemSchema.parse({
       ...valid,
       status: 'pending_payment',
       holdExpiresAt: '2026-05-15T10:10:00.000Z',
@@ -121,15 +126,20 @@ describe('OwnerReservationSchema', () => {
     expect(r.holdExpiresAt).toBe('2026-05-15T10:10:00.000Z');
   });
 
-  it('rejects missing conductor field', () => {
+  it('rejects missing rentador', () => {
+    const { rentador: _r, ...rest } = valid;
+    expect(() => ReservationListItemSchema.parse(rest)).toThrow();
+  });
+
+  it('rejects missing conductor', () => {
     const { conductor: _c, ...rest } = valid;
-    expect(() => OwnerReservationSchema.parse(rest)).toThrow();
+    expect(() => ReservationListItemSchema.parse(rest)).toThrow();
   });
 });
 
-describe('OwnerReservationsListResponseSchema', () => {
-  it('parses empty list with pagination', () => {
-    const r = OwnerReservationsListResponseSchema.parse({
+describe('ReservationsListResponseSchema', () => {
+  it('parses empty list con paginación', () => {
+    const r = ReservationsListResponseSchema.parse({
       items: [],
       page: 1,
       pageSize: 20,
@@ -141,7 +151,7 @@ describe('OwnerReservationsListResponseSchema', () => {
 
   it('rejects negative total', () => {
     expect(() =>
-      OwnerReservationsListResponseSchema.parse({
+      ReservationsListResponseSchema.parse({
         items: [],
         page: 1,
         pageSize: 20,

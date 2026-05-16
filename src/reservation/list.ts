@@ -1,9 +1,13 @@
-// Schemas del lado rentador (US-46: panel de reservas).
-// Separado de reservation.ts (que cubre el flujo del conductor) para mantener
-// la lectura del módulo por actor.
+// Listado paginado de reservas — endpoint unificado `GET /reservations`.
+// El query param `role` indica desde qué perspectiva pide el usuario:
+//   - 'conductor' → reservas que yo creé
+//   - 'owner'     → reservas sobre vehículos que yo publiqué
+// El response siempre incluye conductor + rentador + vehicle para que la UI
+// pueda renderizar ambos lados sin segundos round-trips.
 import { z } from 'zod';
 import {
   PaymentMethodSchema,
+  ReservationRentadorSummarySchema,
   ReservationStatusSchema,
   ReservationVehicleSummarySchema,
 } from './reservation';
@@ -17,7 +21,7 @@ export type ReservationConductorSummary = z.infer<
   typeof ReservationConductorSummarySchema
 >;
 
-export const OwnerReservationSchema = z.object({
+export const ReservationListItemSchema = z.object({
   id: z.string().uuid(),
   vehicleId: z.string().uuid(),
   conductorId: z.string().uuid(),
@@ -34,26 +38,31 @@ export const OwnerReservationSchema = z.object({
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
   conductor: ReservationConductorSummarySchema,
+  rentador: ReservationRentadorSummarySchema,
 });
-export type OwnerReservation = z.infer<typeof OwnerReservationSchema>;
+export type ReservationListItem = z.infer<typeof ReservationListItemSchema>;
 
-export const OwnerReservationsListRequestSchema = z.object({
+export const ReservationRoleSchema = z.enum(['conductor', 'owner']);
+export type ReservationRole = z.infer<typeof ReservationRoleSchema>;
+
+export const ReservationsListRequestSchema = z.object({
+  role: ReservationRoleSchema,
   status: z.array(ReservationStatusSchema).optional(),
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().max(100).default(20),
 });
-export type OwnerReservationsListRequest = z.infer<
-  typeof OwnerReservationsListRequestSchema
+export type ReservationsListRequest = z.infer<
+  typeof ReservationsListRequestSchema
 >;
 
-export const OwnerReservationsListResponseSchema = z.object({
-  items: z.array(OwnerReservationSchema),
+export const ReservationsListResponseSchema = z.object({
+  items: z.array(ReservationListItemSchema),
   page: z.number().int().positive(),
   pageSize: z.number().int().positive(),
   total: z.number().int().nonnegative(),
 });
-export type OwnerReservationsListResponse = z.infer<
-  typeof OwnerReservationsListResponseSchema
+export type ReservationsListResponse = z.infer<
+  typeof ReservationsListResponseSchema
 >;
