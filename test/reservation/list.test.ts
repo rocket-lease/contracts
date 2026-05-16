@@ -4,8 +4,8 @@ import {
   ReservationRoleSchema,
   ReservationsListRequestSchema,
   ReservationsListResponseSchema,
-  ReservationConductorSummarySchema,
 } from '../../src/reservation/list';
+import { UserPublicSummarySchema } from '../../src/profile/profile';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
 const validUuid2 = '018f8b3c-4d0e-7000-8000-000000000002';
@@ -23,9 +23,9 @@ describe('ReservationRoleSchema', () => {
   });
 });
 
-describe('ReservationConductorSummarySchema', () => {
+describe('UserPublicSummarySchema (conductor/rentador embebido)', () => {
   it('parses valid summary', () => {
-    const r = ReservationConductorSummarySchema.parse({
+    const r = UserPublicSummarySchema.parse({
       id: validUuid,
       name: 'Julian',
       avatarUrl: null,
@@ -35,7 +35,7 @@ describe('ReservationConductorSummarySchema', () => {
 
   it('rejects missing name', () => {
     expect(() =>
-      ReservationConductorSummarySchema.parse({ id: validUuid, avatarUrl: null }),
+      UserPublicSummarySchema.parse({ id: validUuid, avatarUrl: null }),
     ).toThrow();
   });
 });

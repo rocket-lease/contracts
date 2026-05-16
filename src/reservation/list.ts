@@ -6,16 +6,11 @@
 // pueda renderizar ambos lados sin segundos round-trips.
 import { z } from 'zod';
 import { UserPublicSummarySchema } from '../profile/profile';
-import type { UserPublicSummary } from '../profile/profile';
 import {
   PaymentMethodSchema,
-  ReservationRentadorSummarySchema,
   ReservationStatusSchema,
   ReservationVehicleSummarySchema,
 } from './reservation';
-
-export const ReservationConductorSummarySchema = UserPublicSummarySchema;
-export type ReservationConductorSummary = UserPublicSummary;
 
 export const ReservationListItemSchema = z.object({
   id: z.string().uuid(),
@@ -33,8 +28,8 @@ export const ReservationListItemSchema = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
-  conductor: ReservationConductorSummarySchema,
-  rentador: ReservationRentadorSummarySchema,
+  conductor: UserPublicSummarySchema,
+  rentador: UserPublicSummarySchema,
 });
 export type ReservationListItem = z.infer<typeof ReservationListItemSchema>;
 
