@@ -103,6 +103,14 @@ export type GetReservationResponse = z.infer<
   typeof GetReservationResponseSchema
 >;
 
+export const CancelReservationResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('cancelled'),
+});
+export type CancelReservationResponse = z.infer<
+  typeof CancelReservationResponseSchema
+>;
+
 export const ListMyReservationsResponseSchema = z.object({
   items: z.array(GetReservationResponseSchema),
 });
