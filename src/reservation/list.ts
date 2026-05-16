@@ -1,9 +1,3 @@
-// Listado paginado de reservas — endpoint unificado `GET /reservations`.
-// El query param `role` indica desde qué perspectiva pide el usuario:
-//   - 'conductor' → reservas que yo creé
-//   - 'owner'     → reservas sobre vehículos que yo publiqué
-// El response siempre incluye conductor + rentador + vehicle para que la UI
-// pueda renderizar ambos lados sin segundos round-trips.
 import { z } from 'zod';
 import { UserPublicSummarySchema } from '../profile/profile';
 import {
