@@ -7,6 +7,9 @@ import {
   ConfirmReservationPaymentRequestSchema,
   ConfirmReservationPaymentResponseSchema,
   GetReservationResponseSchema,
+  ApproveReservationResponseSchema,
+  RejectReservationRequestSchema,
+  RejectReservationResponseSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -17,6 +20,7 @@ const validUuid4 = '018f8b3c-4d0e-7000-8000-000000000004';
 describe('ReservationStatusSchema', () => {
   it('accepts all valid statuses', () => {
     for (const s of [
+      'pending_approval',
       'pending_payment',
       'confirmed',
       'in_progress',
@@ -129,7 +133,18 @@ describe('CreateReservationResponseSchema', () => {
     ).toThrow();
   });
 
-  it('rejects status other than pending_payment', () => {
+  it('accepts pending_approval as status (auto_accept off)', () => {
+    const r = CreateReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'pending_approval',
+      holdExpiresAt: '2026-06-02T10:00:00.000Z',
+      totalCents: 4800000,
+      currency: 'ARS',
+    });
+    expect(r.status).toBe('pending_approval');
+  });
+
+  it('rejects status outside the allowed union', () => {
     expect(() =>
       CreateReservationResponseSchema.parse({
         id: validUuid,
@@ -139,6 +154,71 @@ describe('CreateReservationResponseSchema', () => {
         currency: 'ARS',
       }),
     ).toThrow();
+  });
+});
+
+describe('ApproveReservationResponseSchema', () => {
+  it('parses a valid response', () => {
+    const r = ApproveReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'pending_payment',
+      holdExpiresAt: '2026-06-01T10:10:00.000Z',
+    });
+    expect(r.status).toBe('pending_payment');
+  });
+
+  it('rejects wrong status literal', () => {
+    expect(() =>
+      ApproveReservationResponseSchema.parse({
+        id: validUuid,
+        status: 'confirmed',
+        holdExpiresAt: '2026-06-01T10:10:00.000Z',
+      }),
+    ).toThrow();
+  });
+});
+
+describe('RejectReservationRequestSchema', () => {
+  it('parses without reason', () => {
+    const r = RejectReservationRequestSchema.parse({});
+    expect(r.reason).toBeUndefined();
+  });
+
+  it('parses with reason under 280 chars', () => {
+    const r = RejectReservationRequestSchema.parse({ reason: 'No disponible' });
+    expect(r.reason).toBe('No disponible');
+  });
+
+  it('rejects reason over 280 chars', () => {
+    expect(() =>
+      RejectReservationRequestSchema.parse({ reason: 'x'.repeat(281) }),
+    ).toThrow();
+  });
+
+  it('trims surrounding whitespace', () => {
+    const r = RejectReservationRequestSchema.parse({ reason: '  motivo  ' });
+    expect(r.reason).toBe('motivo');
+  });
+});
+
+describe('RejectReservationResponseSchema', () => {
+  it('parses with rejectionReason null', () => {
+    const r = RejectReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'rejected',
+      rejectionReason: null,
+    });
+    expect(r.status).toBe('rejected');
+    expect(r.rejectionReason).toBeNull();
+  });
+
+  it('parses with rejectionReason set', () => {
+    const r = RejectReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'rejected',
+      rejectionReason: 'En mantenimiento',
+    });
+    expect(r.rejectionReason).toBe('En mantenimiento');
   });
 });
 
@@ -181,6 +261,7 @@ describe('GetReservationResponseSchema', () => {
     paymentMethod: null,
     contractAcceptedAt: '2026-06-01T10:00:00.000Z',
     paidAt: null,
+    rejectionReason: null,
     createdAt: '2026-06-01T10:00:00.000Z',
     updatedAt: '2026-06-01T10:00:00.000Z',
     vehicle: {
