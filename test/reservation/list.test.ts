@@ -90,6 +90,7 @@ describe('ReservationListItemSchema', () => {
     currency: 'ARS',
     paymentMethod: 'credit_card',
     paidAt: '2026-05-15T12:00:00.000Z',
+    rejectionReason: null,
     createdAt: '2026-05-15T11:00:00.000Z',
     updatedAt: '2026-05-15T12:00:00.000Z',
     vehicle: {

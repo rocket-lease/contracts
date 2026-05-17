@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { UserPublicSummarySchema } from '../profile/profile';
 
 export const ReservationStatusSchema = z.enum([
+  'pending_approval',
   'pending_payment',
   'confirmed',
   'in_progress',
@@ -36,7 +37,7 @@ export type CreateReservationRequest = z.infer<
 
 export const CreateReservationResponseSchema = z.object({
   id: z.string().uuid(),
-  status: z.literal('pending_payment'),
+  status: z.union([z.literal('pending_approval'), z.literal('pending_payment')]),
   holdExpiresAt: z.string().datetime(),
   totalCents: z.number().int().nonnegative(),
   currency: z.literal('ARS'),
@@ -87,6 +88,7 @@ export const GetReservationResponseSchema = z.object({
   paymentMethod: PaymentMethodSchema.nullable(),
   contractAcceptedAt: z.string().datetime().nullable(),
   paidAt: z.string().datetime().nullable(),
+  rejectionReason: z.string().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
@@ -102,6 +104,31 @@ export const CancelReservationResponseSchema = z.object({
 });
 export type CancelReservationResponse = z.infer<
   typeof CancelReservationResponseSchema
+>;
+
+export const ApproveReservationResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('pending_payment'),
+  holdExpiresAt: z.string().datetime(),
+});
+export type ApproveReservationResponse = z.infer<
+  typeof ApproveReservationResponseSchema
+>;
+
+export const RejectReservationRequestSchema = z.object({
+  reason: z.string().trim().max(280).optional(),
+});
+export type RejectReservationRequest = z.infer<
+  typeof RejectReservationRequestSchema
+>;
+
+export const RejectReservationResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('rejected'),
+  rejectionReason: z.string().nullable(),
+});
+export type RejectReservationResponse = z.infer<
+  typeof RejectReservationResponseSchema
 >;
 
 

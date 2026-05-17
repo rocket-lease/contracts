@@ -32,7 +32,8 @@ export const CreateVehicleRequestSchema = z.object({
     availableFrom: z.string(),
     province: z.string().min(1, "Province ISO code is required"),
     city: z.string().min(1, "City name is required"),
-    characteristics: z.array(CharacteristicSchema).optional()
+    characteristics: z.array(CharacteristicSchema).optional(),
+    autoAccept: z.boolean().nullable().optional()
 });
 export type CreateVehicleRequest = z.infer<typeof CreateVehicleRequestSchema>;
 
@@ -47,7 +48,8 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
 }).extend({
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
-    characteristics: z.array(CharacteristicSchema).optional()
+    characteristics: z.array(CharacteristicSchema).optional(),
+    autoAccept: z.boolean().nullable().optional()
 }).strict();
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
@@ -85,6 +87,7 @@ export const GetVehicleResponseSchema = z.object({
     city: z.string().min(1),
     characteristics: z.array(CharacteristicSchema).optional(),
     owner: VehicleOwnerSchema.optional(),
+    autoAccept: z.boolean().nullable(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 

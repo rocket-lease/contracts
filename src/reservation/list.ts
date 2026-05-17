@@ -19,6 +19,7 @@ export const ReservationListItemSchema = z.object({
   currency: z.literal('ARS'),
   paymentMethod: PaymentMethodSchema.nullable(),
   paidAt: z.string().datetime().nullable(),
+  rejectionReason: z.string().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
