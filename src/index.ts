@@ -9,3 +9,4 @@ export * from './errors/problem-details';
 export * from './schemas/favorite.schema';
 export * from './reservation/reservation';
 export * from './reservation/list';
+export * from './schemas/upload.schema';
