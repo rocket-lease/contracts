@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ReservationRuleSetPublicSchema } from './reservation-rules';
 
 const TransmissionSchema = z.enum(['Manual', 'Automatico', 'Semiautomatico']);
 
@@ -89,6 +90,7 @@ export const GetVehicleResponseSchema = z.object({
     characteristics: z.array(CharacteristicSchema).optional(),
     owner: VehicleOwnerSchema.optional(),
     reservationRuleSetId: z.string().uuid().nullable().optional(),
+    reservationRuleSet: ReservationRuleSetPublicSchema.nullable().optional(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 

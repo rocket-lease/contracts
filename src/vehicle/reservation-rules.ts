@@ -68,6 +68,18 @@ export const ReservationRuleSetSchema = z.object({
 export type ReservationRuleSet = z.infer<typeof ReservationRuleSetSchema>;
 
 /**
+ * Versión pública de un set de reglas (sin campos privados name/description)
+ */
+export const ReservationRuleSetPublicSchema = ReservationRuleSetSchema.omit({
+  name: true,
+  description: true,
+  vehicleCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type ReservationRuleSetPublic = z.infer<typeof ReservationRuleSetPublicSchema>;
+
+/**
  * Request para crear un nuevo set de reglas
  */
 export const CreateReservationRuleSetRequestSchema = ReservationRuleSetSchema.omit({
@@ -113,11 +125,3 @@ export const ReservationRuleSetEndpoints = {
   update: (id: string) => `/reservation-rules/${id}`,
   delete: (id: string) => `/reservation-rules/${id}`,
 } as const;
-
-/**
- * Extensión del GetVehicleResponse para incluir reglas asociadas
- */
-export const VehicleWithRulesSchema = z.object({
-  reservationRuleSetId: z.string().uuid().optional(),
-});
-export type VehicleWithRules = z.infer<typeof VehicleWithRulesSchema>;
