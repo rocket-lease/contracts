@@ -46,6 +46,7 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
 }).extend({
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
+    reservationRuleSetId: z.string().uuid().nullable().optional(),
     characteristics: z.array(CharacteristicSchema).optional()
 }).strict();
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
@@ -87,6 +88,7 @@ export const GetVehicleResponseSchema = z.object({
     city: z.string().min(1),
     characteristics: z.array(CharacteristicSchema).optional(),
     owner: VehicleOwnerSchema.optional(),
+    reservationRuleSetId: z.string().uuid().nullable().optional(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 
