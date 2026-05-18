@@ -59,8 +59,7 @@ export const ConfirmReservationPaymentResponseSchema = z.object({
   id: z.string().uuid(),
   status: z.literal('confirmed'),
   paidAt: z.string().datetime(),
-  voucher: z.object({ qrCode: z.string() }).optional(),
-  notified: z.boolean().optional(),
+  voucherToken: z.string().uuid(),
 });
 export type ConfirmReservationPaymentResponse = z.infer<
   typeof ConfirmReservationPaymentResponseSchema
@@ -127,6 +126,7 @@ export const GetReservationResponseSchema = z.object({
   transferExpiresAt: z.string().datetime().nullable(),
   transferCode: z.string().nullable(),
   transferAlias: z.string().nullable(),
+  voucherToken: z.string().uuid().nullable().optional(),
   rejectionReason: z.string().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -183,3 +183,34 @@ export const VehicleBusyRangesResponseSchema = z.object({
 export type VehicleBusyRangesResponse = z.infer<
   typeof VehicleBusyRangesResponseSchema
 >;
+
+export const VoucherSchema = z.object({
+  reservationId: z.string().uuid(),
+  voucherToken: z.string().uuid(),
+  status: ReservationStatusSchema,
+  conductor: UserPublicSummarySchema,
+  vehicle: ReservationVehicleSummarySchema,
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
+  totalCents: z.number().int().nonnegative(),
+  currency: z.literal('ARS'),
+  paymentMethod: PaymentMethodSchema,
+  paidAt: z.string().datetime(),
+});
+export type Voucher = z.infer<typeof VoucherSchema>;
+
+export const VerifyVoucherResponseSchema = z.object({
+  reservationId: z.string().uuid(),
+  status: ReservationStatusSchema,
+  conductor: UserPublicSummarySchema,
+  vehicle: ReservationVehicleSummarySchema,
+  rentador: UserPublicSummarySchema,
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
+  totalCents: z.number().int().nonnegative(),
+  currency: z.literal('ARS'),
+  paymentMethod: PaymentMethodSchema,
+  paidAt: z.string().datetime(),
+  isValid: z.boolean(),
+});
+export type VerifyVoucherResponse = z.infer<typeof VerifyVoucherResponseSchema>;
