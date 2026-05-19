@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ReservationRuleSetPublicSchema } from './reservation-rules';
 import { UserPublicSummarySchema } from '../profile/profile';
 
 const TransmissionSchema = z.enum(['Manual', 'Automatico', 'Semiautomatico']);
@@ -58,6 +59,7 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
 }).extend({
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
+    reservationRuleSetId: z.string().uuid().nullable().optional(),
     characteristics: z.array(CharacteristicSchema).optional(),
     autoAccept: z.boolean().nullable().optional()
 }).strict();
@@ -94,9 +96,12 @@ export const GetVehicleResponseSchema = z.object({
     description: z.string().nullable(),
     availableFrom: z.string(),
     characteristics: z.array(CharacteristicSchema),
-    owner: OwnerSchema.optional(),
+    // owner: OwnerSchema.optional(),
     province: z.string().min(1),
     city: z.string().min(1),
+    owner: VehicleOwnerSchema.optional(),
+    reservationRuleSetId: z.string().uuid().nullable().optional(),
+    reservationRuleSet: ReservationRuleSetPublicSchema.nullable().optional(),
     autoAccept: z.boolean().nullable(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;

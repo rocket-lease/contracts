@@ -8,6 +8,10 @@ export const ProblemDetailsSchema = z.object({
   code: z.enum(Object.values(ErrorCodes) as [string, ...string[]]),
   detail: z.string(),
   instance: z.string().optional(),
+  statusCode: z.number().int(),
+  message: z.string(),
+  timestamp: z.string(),
+  path: z.string(),
 });
 
 export type ProblemDetails = z.infer<typeof ProblemDetailsSchema>;
