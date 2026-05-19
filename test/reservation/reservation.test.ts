@@ -10,6 +10,8 @@ import {
   ApproveReservationResponseSchema,
   RejectReservationRequestSchema,
   RejectReservationResponseSchema,
+  VoucherSchema,
+  VerifyVoucherResponseSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -241,8 +243,10 @@ describe('ConfirmReservationPaymentResponseSchema', () => {
       id: validUuid,
       status: 'confirmed',
       paidAt: '2026-06-01T10:05:00.000Z',
+      voucherToken: validUuid2,
     });
     expect(r.status).toBe('confirmed');
+    expect(r.voucherToken).toBe(validUuid2);
   });
 });
 
@@ -290,6 +294,94 @@ describe('GetReservationResponseSchema', () => {
   it('rejects missing nested vehicle field', () => {
     const { vehicle: _v, ...rest } = valid;
     expect(() => GetReservationResponseSchema.parse(rest)).toThrow();
+  });
+});
+
+describe('VoucherSchema', () => {
+  const validVoucher = {
+    reservationId: validUuid,
+    voucherToken: validUuid2,
+    status: 'confirmed' as const,
+    conductor: {
+      id: validUuid3,
+      name: 'Julian',
+      avatarUrl: null,
+    },
+    vehicle: {
+      id: validUuid4,
+      brand: 'Toyota',
+      model: 'Etios',
+      year: 2020,
+      photo: null,
+    },
+    startAt: '2026-06-01T10:00:00.000Z',
+    endAt: '2026-06-03T10:00:00.000Z',
+    totalCents: 50000,
+    currency: 'ARS' as const,
+    paymentMethod: 'credit_card' as const,
+    paidAt: '2026-06-01T10:05:00.000Z',
+  };
+
+  it('parses a valid voucher', () => {
+    const r = VoucherSchema.parse(validVoucher);
+    expect(r.reservationId).toBe(validUuid);
+    expect(r.voucherToken).toBe(validUuid2);
+  });
+
+  it('rejects invalid uuid in voucherToken', () => {
+    expect(() =>
+      VoucherSchema.parse({
+        ...validVoucher,
+        voucherToken: 'invalid-uuid',
+      }),
+    ).toThrow();
+  });
+});
+
+describe('VerifyVoucherResponseSchema', () => {
+  const validVerifyResponse = {
+    reservationId: validUuid,
+    status: 'confirmed' as const,
+    conductor: {
+      id: validUuid2,
+      name: 'Julian',
+      avatarUrl: null,
+    },
+    vehicle: {
+      id: validUuid3,
+      brand: 'Toyota',
+      model: 'Etios',
+      year: 2020,
+      photo: null,
+    },
+    rentador: {
+      id: validUuid4,
+      name: 'Lucas',
+      avatarUrl: null,
+    },
+    startAt: '2026-06-01T10:00:00.000Z',
+    endAt: '2026-06-03T10:00:00.000Z',
+    totalCents: 50000,
+    currency: 'ARS' as const,
+    paymentMethod: 'credit_card' as const,
+    paidAt: '2026-06-01T10:05:00.000Z',
+    isValid: true,
+  };
+
+  it('parses a valid verify response', () => {
+    const r = VerifyVoucherResponseSchema.parse(validVerifyResponse);
+    expect(r.isValid).toBe(true);
+    expect(r.reservationId).toBe(validUuid);
+  });
+
+  it('parses a verify response with isValid: false', () => {
+    const r = VerifyVoucherResponseSchema.parse({
+      ...validVerifyResponse,
+      status: 'cancelled',
+      isValid: false,
+    });
+    expect(r.isValid).toBe(false);
+    expect(r.status).toBe('cancelled');
   });
 });
 
