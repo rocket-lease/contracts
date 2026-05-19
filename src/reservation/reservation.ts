@@ -12,6 +12,7 @@ export const ReservationStatusSchema = z.enum([
   'expired',
 ]);
 export type ReservationStatus = z.infer<typeof ReservationStatusSchema>;
+export const RESERVATION_STATUS = ReservationStatusSchema.enum;
 
 export const PaymentMethodSchema = z.enum([
   'credit_card',
