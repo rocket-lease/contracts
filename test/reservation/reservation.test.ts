@@ -12,6 +12,10 @@ import {
   RejectReservationResponseSchema,
   VoucherSchema,
   VerifyVoucherResponseSchema,
+  ConfirmPickupRequestSchema,
+  ConfirmPickupResponseSchema,
+  ConfirmReturnRequestSchema,
+  ConfirmReturnResponseSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -333,6 +337,82 @@ describe('VoucherSchema', () => {
       VoucherSchema.parse({
         ...validVoucher,
         voucherToken: 'invalid-uuid',
+      }),
+    ).toThrow();
+  });
+});
+
+describe('ConfirmPickupRequestSchema', () => {
+  it('parses a valid uuid', () => {
+    const r = ConfirmPickupRequestSchema.parse({ voucherToken: validUuid });
+    expect(r.voucherToken).toBe(validUuid);
+  });
+
+  it('rejects a non-uuid string', () => {
+    expect(() => ConfirmPickupRequestSchema.parse({ voucherToken: 'not-a-uuid' })).toThrow();
+  });
+
+  it('rejects missing voucherToken', () => {
+    expect(() => ConfirmPickupRequestSchema.parse({})).toThrow();
+  });
+});
+
+describe('ConfirmPickupResponseSchema', () => {
+  it('parses a valid response', () => {
+    const r = ConfirmPickupResponseSchema.parse({
+      reservationId: validUuid,
+      status: 'in_progress',
+      startedAt: '2026-06-01T10:00:00.000Z',
+      returnQrToken: validUuid2,
+    });
+    expect(r.status).toBe('in_progress');
+    expect(r.returnQrToken).toBe(validUuid2);
+  });
+
+  it('rejects wrong status literal', () => {
+    expect(() =>
+      ConfirmPickupResponseSchema.parse({
+        reservationId: validUuid,
+        status: 'confirmed',
+        startedAt: '2026-06-01T10:00:00.000Z',
+        returnQrToken: validUuid2,
+      }),
+    ).toThrow();
+  });
+});
+
+describe('ConfirmReturnRequestSchema', () => {
+  it('parses a valid uuid', () => {
+    const r = ConfirmReturnRequestSchema.parse({ returnQrToken: validUuid });
+    expect(r.returnQrToken).toBe(validUuid);
+  });
+
+  it('rejects a non-uuid string', () => {
+    expect(() => ConfirmReturnRequestSchema.parse({ returnQrToken: 'not-a-uuid' })).toThrow();
+  });
+
+  it('rejects missing returnQrToken', () => {
+    expect(() => ConfirmReturnRequestSchema.parse({})).toThrow();
+  });
+});
+
+describe('ConfirmReturnResponseSchema', () => {
+  it('parses a valid response', () => {
+    const r = ConfirmReturnResponseSchema.parse({
+      reservationId: validUuid,
+      status: 'completed',
+      completedAt: '2026-06-03T10:00:00.000Z',
+    });
+    expect(r.status).toBe('completed');
+    expect(r.completedAt).toBe('2026-06-03T10:00:00.000Z');
+  });
+
+  it('rejects wrong status literal', () => {
+    expect(() =>
+      ConfirmReturnResponseSchema.parse({
+        reservationId: validUuid,
+        status: 'in_progress',
+        completedAt: '2026-06-03T10:00:00.000Z',
       }),
     ).toThrow();
   });
