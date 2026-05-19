@@ -15,6 +15,16 @@ export const CharacteristicSchema = z.enum([
 ]);
 export type Characteristic = z.infer<typeof CharacteristicSchema>;
 
+const OwnerSchema = z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    avatarUrl: z.string().url().nullable(),
+    level: z.string(),
+    reputationScore: z.number(),
+    verified: z.boolean(),
+});
+export type Owner = z.infer<typeof OwnerSchema>;
+
 export const CreateVehicleRequestSchema = z.object({
     plate: z.string().trim().min(1, "Plate cannot be empty"),
     brand: z.string().min(1, "Brand is required"),
@@ -30,9 +40,9 @@ export const CreateVehicleRequestSchema = z.object({
     basePriceCents: z.number().int().gt(0, "Base price must be greater than zero"),
     description: z.string().nullable(),
     availableFrom: z.string(),
+    characteristics: z.array(CharacteristicSchema).default([]),
     province: z.string().min(1, "Province ISO code is required"),
     city: z.string().min(1, "City name is required"),
-    characteristics: z.array(CharacteristicSchema).optional(),
     autoAccept: z.boolean().nullable().optional()
 });
 export type CreateVehicleRequest = z.infer<typeof CreateVehicleRequestSchema>;
@@ -83,10 +93,10 @@ export const GetVehicleResponseSchema = z.object({
     basePriceCents: z.number().int().gt(0),
     description: z.string().nullable(),
     availableFrom: z.string(),
+    characteristics: z.array(CharacteristicSchema),
+    owner: OwnerSchema.optional(),
     province: z.string().min(1),
     city: z.string().min(1),
-    characteristics: z.array(CharacteristicSchema).optional(),
-    owner: VehicleOwnerSchema.optional(),
     autoAccept: z.boolean().nullable(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;

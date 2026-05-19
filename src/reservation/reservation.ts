@@ -17,6 +17,7 @@ export const PaymentMethodSchema = z.enum([
   'credit_card',
   'debit_card',
   'bank_transfer',
+  'digital_wallet',
 ]);
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
 
@@ -48,6 +49,7 @@ export type CreateReservationResponse = z.infer<
 
 export const ConfirmReservationPaymentRequestSchema = z.object({
   paymentMethod: PaymentMethodSchema,
+  walletProvider: z.string().optional(),
 });
 export type ConfirmReservationPaymentRequest = z.infer<
   typeof ConfirmReservationPaymentRequestSchema
@@ -57,9 +59,42 @@ export const ConfirmReservationPaymentResponseSchema = z.object({
   id: z.string().uuid(),
   status: z.literal('confirmed'),
   paidAt: z.string().datetime(),
+  voucher: z.object({ qrCode: z.string() }).optional(),
+  notified: z.boolean().optional(),
 });
 export type ConfirmReservationPaymentResponse = z.infer<
   typeof ConfirmReservationPaymentResponseSchema
+>;
+
+export const PaymentMethodsResponseSchema = z.object({
+  methods: z.array(PaymentMethodSchema),
+});
+export type PaymentMethodsResponse = z.infer<
+  typeof PaymentMethodsResponseSchema
+>;
+
+export const InitiateTransferResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('pending_approval'),
+  transferCode: z.string(),
+  transferAlias: z.string(),
+  transferExpiresAt: z.string().datetime(),
+  totalCents: z.number().int().nonnegative(),
+  currency: z.literal('ARS'),
+});
+export type InitiateTransferResponse = z.infer<
+  typeof InitiateTransferResponseSchema
+>;
+
+export const ConfirmTransferResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('confirmed'),
+  paidAt: z.string().datetime(),
+  voucher: z.object({ qrCode: z.string() }).optional(),
+  notified: z.boolean().optional(),
+});
+export type ConfirmTransferResponse = z.infer<
+  typeof ConfirmTransferResponseSchema
 >;
 
 export const ReservationVehicleSummarySchema = z.object({
@@ -86,8 +121,12 @@ export const GetReservationResponseSchema = z.object({
   totalCents: z.number().int().nonnegative(),
   currency: z.literal('ARS'),
   paymentMethod: PaymentMethodSchema.nullable(),
+  walletProvider: z.string().nullable(),
   contractAcceptedAt: z.string().datetime().nullable(),
   paidAt: z.string().datetime().nullable(),
+  transferExpiresAt: z.string().datetime().nullable(),
+  transferCode: z.string().nullable(),
+  transferAlias: z.string().nullable(),
   rejectionReason: z.string().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
