@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ReservationRuleSetPublicSchema } from './reservation-rules';
+import { UserPublicSummarySchema } from '../profile/profile';
 
 const TransmissionSchema = z.enum(['Manual', 'Automatico', 'Semiautomatico']);
 
@@ -15,6 +16,16 @@ export const CharacteristicSchema = z.enum([
 ]);
 export type Characteristic = z.infer<typeof CharacteristicSchema>;
 
+const OwnerSchema = z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    avatarUrl: z.string().url().nullable(),
+    level: z.string(),
+    reputationScore: z.number(),
+    verified: z.boolean(),
+});
+export type Owner = z.infer<typeof OwnerSchema>;
+
 export const CreateVehicleRequestSchema = z.object({
     plate: z.string().trim().min(1, "Plate cannot be empty"),
     brand: z.string().min(1, "Brand is required"),
@@ -27,12 +38,13 @@ export const CreateVehicleRequestSchema = z.object({
     photos: z.array(z.string()).min(1),
     color: z.string().min(1, "Color is required"),
     mileage: z.number().min(0, "Mileage cannot be negative"),
-    basePrice: z.number().gt(0, "Base price must be greater than zero"),
+    basePriceCents: z.number().int().gt(0, "Base price must be greater than zero"),
     description: z.string().nullable(),
     availableFrom: z.string(),
+    characteristics: z.array(CharacteristicSchema).default([]),
     province: z.string().min(1, "Province ISO code is required"),
     city: z.string().min(1, "City name is required"),
-    characteristics: z.array(CharacteristicSchema).optional()
+    autoAccept: z.boolean().nullable().optional()
 });
 export type CreateVehicleRequest = z.infer<typeof CreateVehicleRequestSchema>;
 
@@ -48,7 +60,8 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
     enabled: z.boolean().optional(),
     isAccessible: z.boolean().optional(),
     reservationRuleSetId: z.string().uuid().nullable().optional(),
-    characteristics: z.array(CharacteristicSchema).optional()
+    characteristics: z.array(CharacteristicSchema).optional(),
+    autoAccept: z.boolean().nullable().optional()
 }).strict();
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
@@ -57,10 +70,7 @@ export const CreateVehicleResponseSchema = z.object({
 });
 export type CreateVehicleResponse = z.infer<typeof CreateVehicleResponseSchema>;
 
-export const VehicleOwnerSchema = z.object({
-    id: z.string().uuid(),
-    name: z.string(),
-    avatarUrl: z.string().nullable(),
+export const VehicleOwnerSchema = UserPublicSummarySchema.extend({
     level: z.enum(['bronze', 'silver', 'gold', 'platinum']),
     reputationScore: z.number(),
     verified: z.boolean(),
@@ -82,15 +92,17 @@ export const GetVehicleResponseSchema = z.object({
     photos: z.array(z.string()),
     color: z.string().min(1),
     mileage: z.number().min(0),
-    basePrice: z.number().gt(0),
+    basePriceCents: z.number().int().gt(0),
     description: z.string().nullable(),
     availableFrom: z.string(),
+    characteristics: z.array(CharacteristicSchema),
+    // owner: OwnerSchema.optional(),
     province: z.string().min(1),
     city: z.string().min(1),
-    characteristics: z.array(CharacteristicSchema).optional(),
     owner: VehicleOwnerSchema.optional(),
     reservationRuleSetId: z.string().uuid().nullable().optional(),
     reservationRuleSet: ReservationRuleSetPublicSchema.nullable().optional(),
+    autoAccept: z.boolean().nullable(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 
