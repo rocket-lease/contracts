@@ -1,14 +1,16 @@
 # contracts — Agent Instructions
 
-Shared TypeScript package for Rocket Lease. Zod schemas (single source of truth for shapes), inferred TS types, a thin typed API client, and the canonical error code enum. Published to GitHub Packages as `@<org>/contracts`.
+Shared TypeScript package for Rocket Lease. Zod schemas (single source of truth for shapes), inferred TS types, a thin typed API client, and the canonical error code enum.
 
-This package is consumed by both `api` and `web`. Anything exported here becomes a hard contract; treat each PR as an API design review.
+This package is consumed by both `api` and `web` **as TypeScript source via `link:`** — there is no `dist/` and no npm publish in the day-to-day flow. See `../api/docs/adr/0007-contracts-as-source.md` (supersedes the publish/versioning model of ADR-0003).
 
-## Canonical rules (defer to infra)
+Anything exported here becomes a hard contract; treat each PR as an API design review.
 
-For branching, PR gates, TS strictness, lint config, coverage thresholds (90% absolute floor here), pre-commit hooks: see `<org>/infra` → `playbook/canonical-rules.md`, sections §1–§12.
+## Cross-repo docs (in api/docs/)
 
-Domain glossary (Spanish canonical for terms; English code identifiers): `<org>/infra/playbook/CONTEXT.md`. Schema names follow the English identifiers (`ReservationSchema`, `VehicleSchema`, `ConductorSchema`).
+- Domain glossary: `../api/docs/CONTEXT.md`. Schema names follow the English code identifiers (`ReservationSchema`, `VehicleSchema`, `ConductorSchema`) matching the Spanish canonical terms.
+- Cross-repo conventions (RFC 7807 errors, money, dates, commits): `../api/docs/CONVENTIONS.md`.
+- ADRs: `../api/docs/adr/`.
 
 ## Layout
 
@@ -31,8 +33,8 @@ src/
   errors/
     error-codes.ts            # union enum of RFC 7807 `code` values
   index.ts                    # barrel export
-package.json
-tsconfig.json                 # declaration: true, declarationMap: true
+package.json                  # exports['.'] = ./src/index.ts. No build, no dist.
+tsconfig.json
 ```
 
 ## Rules
@@ -48,19 +50,9 @@ tsconfig.json                 # declaration: true, declarationMap: true
 
 ## Versioning
 
-Semantic Versioning. Published to the public npm registry as `@rocket-lease/contracts`.
+Source-only consumption means there is no per-change version. The `version` field in `package.json` is retained for traceability and for the optional npm-publish path (see "Optional: external publish" below), but day-to-day work does not touch it.
 
-- **Patch**: bug fix only, no shape change.
-- **Minor**: additive (new optional field, new endpoint). Backwards-compatible for both ends.
-- **Major**: removal, rename, or shape change. Both `api` and `web` must update in lockstep.
-
-Auto-publish runs on every GitHub Release. See the "Publishing" section below.
-
-PR ordering for breaking changes:
-
-1. PR to `contracts` → review → merge → release `2.x.x`.
-2. PR to `api` updates `@<org>/contracts` to `2.x.x` and implements changes. Until merged, api CI fails — that is the forcing function.
-3. PR to `web` updates `@<org>/contracts` to `2.x.x` and consumes changes.
+PR ordering for cross-repo features: when a US touches contracts + a consumer, create the **same branch name** in both repos. The consumer CI checks out `contracts` at that branch; if it does not exist, it falls back to the PR's base ref (`dev` or `main`).
 
 ## Tests
 
@@ -72,72 +64,28 @@ PR ordering for breaking changes:
 
 ## Local dev
 
-- `pnpm install`
-- `pnpm test --watch`
-- `pnpm build` — emits `dist/` with `.js` + `.d.ts`.
-
-### Iterating across repos without publishing (`pnpm link`)
-
-While developing a new schema you usually want to consume it in `api` or `web` immediately. Avoid publishing pre-release versions. Use `pnpm link` instead.
-
-One-time setup (per machine):
+Clone `contracts` next to `api` and `web` (same parent directory). Consumers reference it via `link:../contracts` and tsconfig path mapping — there is nothing to build or publish.
 
 ```bash
-# Clone repos side-by-side:
-#   ~/projects/rocket-lease/contracts
-#   ~/projects/rocket-lease/api
-#   ~/projects/rocket-lease/web
-
-# Register contracts globally:
-cd ~/projects/rocket-lease/contracts
-pnpm link --global
-
-# In each consumer repo:
-cd ~/projects/rocket-lease/api
-pnpm link --global @rocket-lease/contracts
+pnpm install                 # install dev deps for typecheck + vitest
+pnpm test --watch            # iterate on schema tests
+pnpm typecheck               # quick sanity check
 ```
 
-Iteration loop:
+Editing `src/**/*.ts` in `contracts` triggers HMR in `web` (`pnpm dev`) and `nest start --watch` reload in `api`. No publish, no version bump, no consumer reinstall.
 
-```bash
-# Edit src/auth/<your-schema>.ts
-cd ~/projects/rocket-lease/contracts
-pnpm build   # rebuild dist/, consumer sees changes immediately
-```
+## Optional: external publish
 
-When the feature is ready:
-
-```bash
-cd ~/projects/rocket-lease/api
-pnpm unlink --global @rocket-lease/contracts
-pnpm install   # restores the published version from npm
-```
-
-Never commit a `file:` or linked dependency. The `package.json` of consumers must always point to a published npm version.
-
-## Publishing
-
-Releases publish automatically when a GitHub Release is created with a tag matching the package version.
-
-Flow:
-
-1. PR your branch → `dev` → review → merge.
-2. PR `dev` → `main` → merge.
-3. On `main`: `pnpm version <patch|minor|major>`. This updates `package.json` and creates a git tag `vX.Y.Z`.
-4. `git push --follow-tags`.
-5. In GitHub UI → Releases → Draft a new release → choose the tag you just pushed → Publish.
-6. The `.github/workflows/publish.yml` action runs: install → test → typecheck → build → verifies that `package.json` version matches the release tag → `pnpm publish` to npm.
-7. Consumers bump `@rocket-lease/contracts` to the new version in their next PR.
-
-No manual `pnpm publish` from a developer machine.
+If an external consumer ever needs `@rocket-lease/contracts` as a real npm package (e.g. a future mobile client without filesystem access to this repo), add a `tsup` build step + a release workflow in a separate PR. The package shape is npm-publish-ready: just point `exports` at the built artifacts behind an `import` condition and reintroduce `main`/`types`. This is intentionally not wired today.
 
 ## CI
 
-`.github/workflows/ci.yml` calls `<org>/infra/.github/workflows/ci-contracts.yml@main`. Release workflow is repo-local in `.github/workflows/release.yml`.
+`.github/workflows/ci.yml` runs typecheck + tests on push and PRs to `dev` and `main`. `.github/workflows/only-dev-to-main.yml` guards that PRs to `main` come from `dev`. No release workflow lives here while the source-only model is in effect.
 
 ## Pointers for AI agents
 
-- Read `infra/playbook/CONTEXT.md` to ensure schema field names align with the domain glossary (English code identifier matching the Spanish canonical term).
+- Read `../api/docs/CONTEXT.md` to ensure schema field names align with the domain glossary (English code identifier matching the Spanish canonical term).
 - When adding a new schema, also add types + at least one client endpoint + tests. A schema without an endpoint is dead code.
 - Discriminated unions for state-dependent shapes: e.g. `ReservationSchema = z.discriminatedUnion('status', [...])` so each status surfaces only its valid fields.
 - Never add fields "for future use". Schema additions are PRs that should be backed by an actual `api` or `web` need landing the same sprint.
+- When you add a schema in a feature branch, push the **same branch name** to `api` and `web` if those repos consume it. Their CI checks out contracts at the same ref, falling back to the PR's base ref if missing.
