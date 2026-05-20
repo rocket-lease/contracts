@@ -128,6 +128,9 @@ export const GetReservationResponseSchema = z.object({
   transferCode: z.string().nullable(),
   transferAlias: z.string().nullable(),
   voucherToken: z.string().uuid().nullable().optional(),
+  returnQrToken: z.string().uuid().nullable().optional(),
+  startedAt: z.string().datetime().nullable().optional(),
+  completedAt: z.string().datetime().nullable().optional(),
   rejectionReason: z.string().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -199,6 +202,31 @@ export const VoucherSchema = z.object({
   paidAt: z.string().datetime(),
 });
 export type Voucher = z.infer<typeof VoucherSchema>;
+
+export const ConfirmPickupRequestSchema = z.object({
+  voucherToken: z.string().uuid(),
+});
+export type ConfirmPickupRequest = z.infer<typeof ConfirmPickupRequestSchema>;
+
+export const ConfirmPickupResponseSchema = z.object({
+  reservationId: z.string().uuid(),
+  status: z.literal('in_progress'),
+  startedAt: z.string().datetime(),
+  returnQrToken: z.string().uuid(),
+});
+export type ConfirmPickupResponse = z.infer<typeof ConfirmPickupResponseSchema>;
+
+export const ConfirmReturnRequestSchema = z.object({
+  returnQrToken: z.string().uuid(),
+});
+export type ConfirmReturnRequest = z.infer<typeof ConfirmReturnRequestSchema>;
+
+export const ConfirmReturnResponseSchema = z.object({
+  reservationId: z.string().uuid(),
+  status: z.literal('completed'),
+  completedAt: z.string().datetime(),
+});
+export type ConfirmReturnResponse = z.infer<typeof ConfirmReturnResponseSchema>;
 
 export const VerifyVoucherResponseSchema = z.object({
   reservationId: z.string().uuid(),
