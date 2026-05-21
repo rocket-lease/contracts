@@ -4,6 +4,7 @@ export * from './auth/password-reset';
 export * from './auth/verification';
 export * from './vehicle/vehicle';
 export * from './vehicle/reservation-rules';
+export * from './vehicle/bulk-price';
 export * from './profile/profile';
 export * from './errors/error-codes';
 export * from './errors/problem-details';
