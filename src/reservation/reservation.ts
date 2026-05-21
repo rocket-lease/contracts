@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { UserPublicSummarySchema } from '../profile/profile';
-import { ReservationRuleSetPublicSchema } from '../vehicle/reservation-rules';
+import {
+  ReservationRuleSetPublicSchema,
+  CancellationPolicySchema,
+  DepositPercentageSchema,
+  MaxKilometrageSchema,
+  RentalTimeConstraintsSchema,
+} from '../vehicle/reservation-rules';
 
 export const ReservationStatusSchema = z.enum([
   'pending_approval',
@@ -134,6 +140,14 @@ export const GetReservationResponseSchema = z.object({
   startedAt: z.string().datetime().nullable().optional(),
   completedAt: z.string().datetime().nullable().optional(),
   rejectionReason: z.string().nullable(),
+  // Snapshot inmutable de las reglas y precio al confirmar la reserva (US-49).
+  // Garantiza que cambios posteriores al RuleSet o al precio del vehículo
+  // no afecten reservas ya confirmadas. Pre-confirmación pueden estar en defaults.
+  depositPercentageSnapshot: DepositPercentageSchema,
+  basePriceCentsSnapshot: z.number().int().nonnegative(),
+  cancellationPolicySnapshot: CancellationPolicySchema,
+  maxKilometrageSnapshot: MaxKilometrageSchema,
+  rentalTimeConstraintsSnapshot: RentalTimeConstraintsSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
