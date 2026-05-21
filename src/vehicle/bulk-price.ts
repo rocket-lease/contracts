@@ -30,7 +30,7 @@ export const BulkPriceUpdateResponseSchema = z.object({
 export type BulkPriceUpdateResponse = z.infer<typeof BulkPriceUpdateResponseSchema>;
 
 export const ActiveReservationsCountRequestSchema = z.object({
-  vehicleIds: z.array(z.string().uuid()).min(1),
+  vehicleIds: z.array(z.string().uuid()).min(1).max(100),
 });
 
 export type ActiveReservationsCountRequest = z.infer<typeof ActiveReservationsCountRequestSchema>;
