@@ -228,10 +228,6 @@ describe('UpdateReservationRuleSetRequestSchema', () => {
   });
 
   it('strips vehicleId silently (Zod default behavior)', () => {
-    // .omit({ vehicleId: true }) excluye el campo del schema; al parsear
-    // un objeto que lo incluye, Zod por default IGNORA propiedades extra.
-    // El comportamiento esperado: la operación no debería usar vehicleId
-    // aunque alguien malicioso lo mande.
     const parsed = UpdateReservationRuleSetRequestSchema.parse({
       vehicleId: otherUuid,
       depositPercentage: 30,
