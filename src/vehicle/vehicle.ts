@@ -44,6 +44,9 @@ export const CreateVehicleRequestSchema = z.object({
     characteristics: z.array(CharacteristicSchema).default([]),
     province: z.string().min(1, "Province ISO code is required"),
     city: z.string().min(1, "City name is required"),
+    address: z.string().min(1, "Address is required"),
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
     autoAccept: z.boolean().nullable().optional()
 });
 export type CreateVehicleRequest = z.infer<typeof CreateVehicleRequestSchema>;
@@ -99,6 +102,12 @@ export const GetVehicleResponseSchema = z.object({
     // owner: OwnerSchema.optional(),
     province: z.string().min(1),
     city: z.string().min(1),
+    // Nullable: los vehículos migrados antes del feature de mapa solo tienen
+    // lat/lng aproximados de centroide y aún no tienen address.
+    address: z.string().nullable(),
+    latitude: z.number().min(-90).max(90).nullable(),
+    longitude: z.number().min(-180).max(180).nullable(),
+    locationApproximate: z.boolean(),
     owner: VehicleOwnerSchema.optional(),
     reservationRuleSetId: z.string().uuid().nullable().optional(),
     reservationRuleSet: ReservationRuleSetPublicSchema.nullable().optional(),
