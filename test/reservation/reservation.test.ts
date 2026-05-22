@@ -295,6 +295,25 @@ describe('GetReservationResponseSchema', () => {
     expect(r.id).toBe(validUuid);
   });
 
+  it('parses reservation detail with reservation rule set in vehicle summary', () => {
+    const r = GetReservationResponseSchema.parse({
+      ...valid,
+      vehicle: {
+        ...valid.vehicle,
+        reservationRuleSet: {
+          id: validUuid,
+          rentalorId: validUuid4,
+          cancellationPolicy: 'FLEXIBLE',
+          deposit: 'TEN_PERCENT',
+          maxKilometrage: { type: 'LIMITED', value: 250 },
+          rentalTimeConstraints: { minDays: 2, maxDays: 10 },
+        },
+      },
+    });
+
+    expect(r.vehicle.reservationRuleSet?.cancellationPolicy).toBe('FLEXIBLE');
+  });
+
   it('rejects missing nested vehicle field', () => {
     const { vehicle: _v, ...rest } = valid;
     expect(() => GetReservationResponseSchema.parse(rest)).toThrow();
