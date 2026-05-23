@@ -16,6 +16,7 @@ import {
   ConfirmPickupResponseSchema,
   ConfirmReturnRequestSchema,
   ConfirmReturnResponseSchema,
+  CancelReservationResponseSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -251,6 +252,21 @@ describe('ConfirmReservationPaymentResponseSchema', () => {
     });
     expect(r.status).toBe('confirmed');
     expect(r.voucherToken).toBe(validUuid2);
+  });
+});
+
+describe('CancelReservationResponseSchema', () => {
+  it('parses a response with refund and updated balance', () => {
+    const r = CancelReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'cancelled',
+      refundCents: 240000,
+      balanceInCents: 480000,
+      currency: 'ARS',
+    });
+
+    expect(r.refundCents).toBe(240000);
+    expect(r.balanceInCents).toBe(480000);
   });
 });
 

@@ -29,6 +29,7 @@ export const GetMyProfileResponseSchema = z.object({
   verificationStatus: VerificationStatusSchema,
   level: UserLevelSchema,
   reputationScore: z.number().min(0).max(5),
+  balanceInCents: z.number().int().nonnegative(),
   preferences: VehiclePreferencesSchema,
   autoAccept: z.boolean(),
 });

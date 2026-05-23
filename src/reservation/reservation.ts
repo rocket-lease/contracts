@@ -146,6 +146,9 @@ export type GetReservationResponse = z.infer<
 export const CancelReservationResponseSchema = z.object({
   id: z.string().uuid(),
   status: z.literal('cancelled'),
+  refundCents: z.number().int().nonnegative(),
+  balanceInCents: z.number().int().nonnegative(),
+  currency: z.literal('ARS'),
 });
 export type CancelReservationResponse = z.infer<
   typeof CancelReservationResponseSchema
