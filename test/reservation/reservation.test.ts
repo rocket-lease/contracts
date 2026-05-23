@@ -16,6 +16,7 @@ import {
   ConfirmPickupResponseSchema,
   ConfirmReturnRequestSchema,
   ConfirmReturnResponseSchema,
+  CancelReservationResponseSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -254,6 +255,21 @@ describe('ConfirmReservationPaymentResponseSchema', () => {
   });
 });
 
+describe('CancelReservationResponseSchema', () => {
+  it('parses a response with refund and updated balance', () => {
+    const r = CancelReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'cancelled',
+      refundCents: 240000,
+      balanceInCents: 480000,
+      currency: 'ARS',
+    });
+
+    expect(r.refundCents).toBe(240000);
+    expect(r.balanceInCents).toBe(480000);
+  });
+});
+
 describe('GetReservationResponseSchema', () => {
   const valid = {
     id: validUuid,
@@ -293,6 +309,25 @@ describe('GetReservationResponseSchema', () => {
   it('parses a valid response', () => {
     const r = GetReservationResponseSchema.parse(valid);
     expect(r.id).toBe(validUuid);
+  });
+
+  it('parses reservation detail with reservation rule set in vehicle summary', () => {
+    const r = GetReservationResponseSchema.parse({
+      ...valid,
+      vehicle: {
+        ...valid.vehicle,
+        reservationRuleSet: {
+          id: validUuid,
+          rentalorId: validUuid4,
+          cancellationPolicy: 'FLEXIBLE',
+          deposit: 'TEN_PERCENT',
+          maxKilometrage: { type: 'LIMITED', value: 250 },
+          rentalTimeConstraints: { minDays: 2, maxDays: 10 },
+        },
+      },
+    });
+
+    expect(r.vehicle.reservationRuleSet?.cancellationPolicy).toBe('FLEXIBLE');
   });
 
   it('rejects missing nested vehicle field', () => {
