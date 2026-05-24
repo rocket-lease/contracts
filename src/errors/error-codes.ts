@@ -26,6 +26,8 @@ export const ErrorCodes = {
   // Geo / map errors
   INVALID_MAP_BOUNDS: 'INVALID_MAP_BOUNDS',
   VEHICLE_LOCATION_REQUIRED: 'VEHICLE_LOCATION_REQUIRED',
+  // Messaging / chat errors
+  CHAT_NOT_ALLOWED: 'CHAT_NOT_ALLOWED',
 } as const;
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
