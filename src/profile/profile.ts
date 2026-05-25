@@ -1,6 +1,10 @@
 import { z } from 'zod';
+import {
+  IdentityVerificationStatusSchema,
+  IdentityVerificationSummarySchema,
+} from '../identity/identity-verification';
 
-export const VerificationStatusSchema = z.enum(['unverified', 'pending', 'verified']);
+export const VerificationStatusSchema = IdentityVerificationStatusSchema;
 export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
 
 export const UserLevelSchema = z.enum(['bronze', 'silver', 'gold', 'platinum']);
@@ -27,6 +31,7 @@ export const GetMyProfileResponseSchema = z.object({
   phone: z.string().trim().min(1).max(20),
   avatarUrl: z.string().url().nullable(),
   verificationStatus: VerificationStatusSchema,
+  identityVerification: IdentityVerificationSummarySchema,
   level: UserLevelSchema,
   reputationScore: z.number().min(0).max(5),
   balanceInCents: z.number().int().nonnegative(),
