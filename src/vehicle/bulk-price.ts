@@ -10,8 +10,10 @@ export const BulkPriceOperationSchema = z.discriminatedUnion('type', [
 
 export type BulkPriceOperation = z.infer<typeof BulkPriceOperationSchema>;
 
+const VehicleIdsSchema = z.array(z.string().uuid()).min(1).max(100);
+
 export const BulkPriceUpdateRequestSchema = z.object({
-  vehicleIds: z.array(z.string().uuid()).min(1).max(100),
+  vehicleIds: VehicleIdsSchema,
   operation: BulkPriceOperationSchema,
 });
 
@@ -30,7 +32,7 @@ export const BulkPriceUpdateResponseSchema = z.object({
 export type BulkPriceUpdateResponse = z.infer<typeof BulkPriceUpdateResponseSchema>;
 
 export const ActiveReservationsCountRequestSchema = z.object({
-  vehicleIds: z.array(z.string().uuid()).min(1).max(100),
+  vehicleIds: VehicleIdsSchema,
 });
 
 export type ActiveReservationsCountRequest = z.infer<typeof ActiveReservationsCountRequestSchema>;
