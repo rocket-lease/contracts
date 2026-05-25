@@ -327,7 +327,7 @@ describe('GetReservationResponseSchema', () => {
           id: validUuid,
           rentalorId: validUuid4,
           cancellationPolicy: 'FLEXIBLE',
-          deposit: 'TEN_PERCENT',
+          depositPercentage: 10,
           maxKilometrage: { type: 'LIMITED', value: 250 },
           rentalTimeConstraints: { minDays: 2, maxDays: 10 },
         },
