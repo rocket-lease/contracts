@@ -4,7 +4,7 @@ export const BulkPriceOperationSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('SET'), valueCents: z.number().int().positive() }),
   z.object({
     type: z.literal('PERCENTAGE'),
-    delta: z.number().int().max(1000),
+    delta: z.number().int().min(-100).max(1000),
   }),
 ]);
 

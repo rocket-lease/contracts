@@ -54,6 +54,10 @@ describe('BulkPriceOperationSchema', () => {
       expect(BulkPriceOperationSchema.parse({ type: 'PERCENTAGE', delta: -100 })).toEqual({ type: 'PERCENTAGE', delta: -100 });
     });
 
+    it('rechaza delta=-101 (piso semántico: no se puede reducir más de 100%)', () => {
+      expect(() => BulkPriceOperationSchema.parse({ type: 'PERCENTAGE', delta: -101 })).toThrow();
+    });
+
     it('rechaza delta=1001', () => {
       expect(() => BulkPriceOperationSchema.parse({ type: 'PERCENTAGE', delta: 1001 })).toThrow();
     });
