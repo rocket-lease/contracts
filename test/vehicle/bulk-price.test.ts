@@ -50,8 +50,8 @@ describe('BulkPriceOperationSchema', () => {
       expect(BulkPriceOperationSchema.parse({ type: 'PERCENTAGE', delta: 1000 })).toEqual({ type: 'PERCENTAGE', delta: 1000 });
     });
 
-    it('rechaza delta=-91', () => {
-      expect(() => BulkPriceOperationSchema.parse({ type: 'PERCENTAGE', delta: -91 })).toThrow();
+    it('parsea delta=-100 (deja que el dominio rechace precios <= 0)', () => {
+      expect(BulkPriceOperationSchema.parse({ type: 'PERCENTAGE', delta: -100 })).toEqual({ type: 'PERCENTAGE', delta: -100 });
     });
 
     it('rechaza delta=1001', () => {
