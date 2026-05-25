@@ -37,6 +37,9 @@ export const ErrorCodes = {
   VEHICLE_ALREADY_HAS_PRIVATE_RULESET: 'VEHICLE_ALREADY_HAS_PRIVATE_RULESET',
   // Promotion errors
   VEHICLE_ALREADY_PROMOTED: 'VEHICLE_ALREADY_PROMOTED',
+  // Bulk-price errors
+  BULK_PRICE_VEHICLE_NOT_OWNED: 'BULK_PRICE_VEHICLE_NOT_OWNED',
+  BULK_PRICE_RESULT_INVALID: 'BULK_PRICE_RESULT_INVALID',
 } as const;
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];

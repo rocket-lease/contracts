@@ -1,0 +1,44 @@
+import { z } from 'zod';
+
+export const BulkPriceOperationSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('SET'), valueCents: z.number().int().positive() }),
+  z.object({
+    type: z.literal('PERCENTAGE'),
+    delta: z.number().int().min(-100).max(1000),
+  }),
+]);
+
+export type BulkPriceOperation = z.infer<typeof BulkPriceOperationSchema>;
+
+const VehicleIdsSchema = z.array(z.string().uuid()).min(1).max(100);
+
+export const BulkPriceUpdateRequestSchema = z.object({
+  vehicleIds: VehicleIdsSchema,
+  operation: BulkPriceOperationSchema,
+});
+
+export type BulkPriceUpdateRequest = z.infer<typeof BulkPriceUpdateRequestSchema>;
+
+export const BulkPriceUpdateResponseSchema = z.object({
+  updated: z.array(
+    z.object({
+      id: z.string().uuid(),
+      previousPriceCents: z.number().int().positive(),
+      newPriceCents: z.number().int().positive(),
+    }),
+  ),
+});
+
+export type BulkPriceUpdateResponse = z.infer<typeof BulkPriceUpdateResponseSchema>;
+
+export const ActiveReservationsCountRequestSchema = z.object({
+  vehicleIds: VehicleIdsSchema,
+});
+
+export type ActiveReservationsCountRequest = z.infer<typeof ActiveReservationsCountRequestSchema>;
+
+export const ActiveReservationsCountResponseSchema = z.object({
+  counts: z.record(z.string().uuid(), z.number().int().nonnegative()),
+});
+
+export type ActiveReservationsCountResponse = z.infer<typeof ActiveReservationsCountResponseSchema>;
