@@ -21,6 +21,12 @@ export const DepositSchema = z.enum([
 export type Deposit = z.infer<typeof DepositSchema>;
 
 /**
+ * Porcentaje de depósito/seña como número (0-100). Null = sin seña fija.
+ */
+export const DepositPercentageSchema = z.number().min(0).max(100).nullable();
+export type DepositPercentage = z.infer<typeof DepositPercentageSchema>;
+
+/**
  * Opciones de kilometraje máximo
  */
 export const MaxKilometrageSchema = z.union([

@@ -13,3 +13,4 @@ export * from './reservation/list';
 export * from './schemas/upload.schema';
 export * from './geo/geo';
 export * from './messaging/message.schema';
+export * from './promotion/promotion.schema';
