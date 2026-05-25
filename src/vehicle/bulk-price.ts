@@ -21,8 +21,8 @@ export const BulkPriceUpdateResponseSchema = z.object({
   updated: z.array(
     z.object({
       id: z.string().uuid(),
-      previousPriceCents: z.number().int(),
-      newPriceCents: z.number().int(),
+      previousPriceCents: z.number().int().positive(),
+      newPriceCents: z.number().int().positive(),
     }),
   ),
 });
