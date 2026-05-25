@@ -290,6 +290,11 @@ describe('GetReservationResponseSchema', () => {
     contractAcceptedAt: '2026-06-01T10:00:00.000Z',
     paidAt: null,
     rejectionReason: null,
+    depositPercentageSnapshot: null,
+    basePriceCentsSnapshot: 1500000,
+    cancellationPolicySnapshot: 'FLEXIBLE',
+    maxKilometrageSnapshot: { type: 'UNLIMITED' },
+    rentalTimeConstraintsSnapshot: {},
     createdAt: '2026-06-01T10:00:00.000Z',
     updatedAt: '2026-06-01T10:00:00.000Z',
     vehicle: {
@@ -309,6 +314,8 @@ describe('GetReservationResponseSchema', () => {
   it('parses a valid response', () => {
     const r = GetReservationResponseSchema.parse(valid);
     expect(r.id).toBe(validUuid);
+    expect(r.depositPercentageSnapshot).toBeNull();
+    expect(r.basePriceCentsSnapshot).toBe(1500000);
   });
 
   it('parses reservation detail with reservation rule set in vehicle summary', () => {
@@ -320,7 +327,7 @@ describe('GetReservationResponseSchema', () => {
           id: validUuid,
           rentalorId: validUuid4,
           cancellationPolicy: 'FLEXIBLE',
-          deposit: 'TEN_PERCENT',
+          depositPercentage: 10,
           maxKilometrage: { type: 'LIMITED', value: 250 },
           rentalTimeConstraints: { minDays: 2, maxDays: 10 },
         },
@@ -333,6 +340,21 @@ describe('GetReservationResponseSchema', () => {
   it('rejects missing nested vehicle field', () => {
     const { vehicle: _v, ...rest } = valid;
     expect(() => GetReservationResponseSchema.parse(rest)).toThrow();
+  });
+
+  it('rejects missing snapshot fields (post US-49)', () => {
+    const { basePriceCentsSnapshot: _b, ...rest } = valid;
+    expect(() => GetReservationResponseSchema.parse(rest)).toThrow();
+  });
+
+  it('accepts a confirmed reservation with depositPercentageSnapshot set', () => {
+    const r = GetReservationResponseSchema.parse({
+      ...valid,
+      status: 'confirmed',
+      paidAt: '2026-06-01T10:05:00.000Z',
+      depositPercentageSnapshot: 30,
+    });
+    expect(r.depositPercentageSnapshot).toBe(30);
   });
 });
 
