@@ -10,6 +10,10 @@ export const apiEndpoints = {
   },
   vehicles: {
     list: '/vehicle',
+    documentsSubmit: (id: string) => `/vehicle/${id}/documents`,
+    documentsStatus: (id: string) => `/vehicle/${id}/documents/status`,
+    documentsRequired: (id: string) => `/vehicle/${id}/documents/required`,
+    documentsProcess: '/vehicle/documents/process',
   },
 } as const;
 
