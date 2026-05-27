@@ -112,6 +112,7 @@ export const GetVehicleResponseSchema = z.object({
     reservationRuleSetId: z.string().uuid().nullable().optional(),
     reservationRuleSet: ReservationRuleSetPublicSchema.nullable().optional(),
     autoAccept: z.boolean().nullable(),
+    isPromoted: z.boolean().optional(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 
@@ -126,3 +127,73 @@ export const VehicleSearchPreferencesSchema = z.object({
     characteristics: z.array(CharacteristicSchema).optional()
 });
 export type VehicleSearchPreferences = z.infer<typeof VehicleSearchPreferencesSchema>;
+
+export const PromotionDurationSchema = z.object({
+  days: z.number().int().positive(),
+  valueInCents: z.number().int().nonnegative(),
+});
+export type PromotionDuration = z.infer<typeof PromotionDurationSchema>;
+
+export const PromotionDurationsResponseSchema = z.array(PromotionDurationSchema);
+export type PromotionDurationsResponse = z.infer<typeof PromotionDurationsResponseSchema>;
+
+export const PromotionStatusEnum = z.enum(['active', 'pending_approval']);
+export type PromotionStatusEnum = z.infer<typeof PromotionStatusEnum>;
+
+export const PromoteVehicleRequestSchema = z.object({
+  durationDays: z.number().int().gte(0).lte(30),
+  startDate: z.string().datetime(),
+  paymentMethod: z.enum(['credit_card', 'debit_card', 'bank_transfer', 'digital_wallet']),
+  walletProvider: z.string().optional(),
+});
+export type PromoteVehicleRequest = z.infer<typeof PromoteVehicleRequestSchema>;
+
+export const PromoteVehicleResponseSchema = z.discriminatedUnion('status', [
+  z.object({
+    vehicleId: z.string().uuid(),
+    totalCents: z.number().int().nonnegative(),
+    startDate: z.string().datetime(),
+    status: z.literal('active'),
+    paidAt: z.string().datetime(),
+    transactionId: z.string(),
+  }),
+  z.object({
+    vehicleId: z.string().uuid(),
+    totalCents: z.number().int().nonnegative(),
+    startDate: z.string().datetime(),
+    status: z.literal('pending_approval'),
+    transferCode: z.string(),
+    transferAlias: z.string(),
+    transferExpiresAt: z.string().datetime(),
+  }),
+]);
+export type PromoteVehicleResponse = z.infer<typeof PromoteVehicleResponseSchema>;
+
+export const PromotionStatusSchema = z.discriminatedUnion('status', [
+  z.object({
+    status: z.literal('active'),
+    startDate: z.string().datetime(),
+    endsAt: z.string().datetime(),
+    durationDays: z.number().int().gte(0).lte(30),
+    totalCents: z.number().int().nonnegative(),
+    paidAt: z.string().datetime(),
+    transactionId: z.string(),
+  }),
+  z.object({
+    status: z.literal('pending_approval'),
+    startDate: z.string().datetime(),
+    endsAt: z.string().datetime(),
+    durationDays: z.number().int().gte(0).lte(30),
+    totalCents: z.number().int().nonnegative(),
+    transferCode: z.string(),
+    transferAlias: z.string(),
+    transferExpiresAt: z.string().datetime(),
+  }),
+]);
+export type PromotionStatus = z.infer<typeof PromotionStatusSchema>;
+
+export const GetPromotionResponseSchema = z.object({
+  active: z.boolean(),
+  promotion: PromotionStatusSchema.nullable().optional(),
+});
+export type GetPromotionResponse = z.infer<typeof GetPromotionResponseSchema>;
