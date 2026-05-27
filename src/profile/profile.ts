@@ -1,7 +1,12 @@
 import { z } from 'zod';
+import {
+  IdentityVerificationStatusSchema,
+  IdentityVerificationSummarySchema,
+} from '../identity/identity-verification';
+import { DriverLicenseVerificationSummarySchema } from '../driver-license/driver-license-verification';
 
-export const VerificationStatusSchema = z.enum(['unverified', 'pending', 'verified']);
-export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
+export const ProfileVerificationStatusSchema = IdentityVerificationStatusSchema;
+export type ProfileVerificationStatus = z.infer<typeof ProfileVerificationStatusSchema>;
 
 export const UserLevelSchema = z.enum(['bronze', 'silver', 'gold', 'platinum']);
 export type UserLevel = z.infer<typeof UserLevelSchema>;
@@ -26,9 +31,12 @@ export const GetMyProfileResponseSchema = z.object({
   email: z.string().email(),
   phone: z.string().trim().min(1).max(20),
   avatarUrl: z.string().url().nullable(),
-  verificationStatus: VerificationStatusSchema,
+  verificationStatus: ProfileVerificationStatusSchema,
+  identityVerification: IdentityVerificationSummarySchema,
+  driverLicenseVerification: DriverLicenseVerificationSummarySchema,
   level: UserLevelSchema,
   reputationScore: z.number().min(0).max(5),
+  balanceInCents: z.number().int().nonnegative(),
   preferences: VehiclePreferencesSchema,
   autoAccept: z.boolean(),
 });
