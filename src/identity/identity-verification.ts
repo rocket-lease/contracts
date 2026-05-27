@@ -1,23 +1,18 @@
 import { z } from 'zod';
+import {
+  VerificationDocumentSchema,
+  VerificationStatusSchema,
+  VerificationSummarySchema,
+  type VerificationDocument,
+  type VerificationStatus,
+  type VerificationSummary,
+} from '../verification/verification';
 
-export const IdentityVerificationStatusSchema = z.enum([
-  'not_started',
-  'pending',
-  'verified',
-  'rejected',
-]);
-export type IdentityVerificationStatus = z.infer<
-  typeof IdentityVerificationStatusSchema
->;
+export const IdentityVerificationStatusSchema = VerificationStatusSchema;
+export type IdentityVerificationStatus = VerificationStatus;
 
-export const IdentityVerificationDocumentSchema = z.object({
-  fileName: z.string().trim().min(1),
-  mimeType: z.string().trim().min(1),
-  dataUrl: z.string().trim().min(1),
-});
-export type IdentityVerificationDocument = z.infer<
-  typeof IdentityVerificationDocumentSchema
->;
+export const IdentityVerificationDocumentSchema = VerificationDocumentSchema;
+export type IdentityVerificationDocument = VerificationDocument;
 
 export const IdentityVerificationDocumentsSchema = z.object({
   frontDni: IdentityVerificationDocumentSchema,
@@ -35,18 +30,9 @@ export type SubmitIdentityVerificationRequest = z.infer<
 >;
 
 export const IdentityVerificationSummarySchema = z.object({
-  status: IdentityVerificationStatusSchema,
-  providerName: z.string().trim().min(1).nullable(),
-  providerRequestId: z.string().trim().min(1).nullable(),
-  rejectionReason: z.string().trim().min(1).max(280).nullable(),
-  submittedAt: z.string().datetime().nullable(),
-  reviewAfterAt: z.string().datetime().nullable(),
-  reviewedAt: z.string().datetime().nullable(),
-  verifiedAt: z.string().datetime().nullable(),
+  ...VerificationSummarySchema.shape,
 });
-export type IdentityVerificationSummary = z.infer<
-  typeof IdentityVerificationSummarySchema
->;
+export type IdentityVerificationSummary = VerificationSummary;
 
 export const SubmitIdentityVerificationResponseSchema =
   IdentityVerificationSummarySchema;
