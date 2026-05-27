@@ -2,6 +2,9 @@ export const apiEndpoints = {
   identity: {
     meVerification: '/identity/me/verification',
   },
+  driverLicense: {
+    meVerification: '/driver-license/me/verification',
+  },
   profile: {
     me: '/profile/me',
   },
