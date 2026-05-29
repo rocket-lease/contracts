@@ -136,6 +136,19 @@ describe('ReservationListItemSchema', () => {
     const { conductor: _c, ...rest } = valid;
     expect(() => ReservationListItemSchema.parse(rest)).toThrow();
   });
+
+  it('acepta parentReservationId opcional (extension)', () => {
+    const r = ReservationListItemSchema.parse({
+      ...valid,
+      parentReservationId: validUuid,
+    });
+    expect(r.parentReservationId).toBe(validUuid);
+  });
+
+  it('acepta parentReservationId omitido (reserva root)', () => {
+    const r = ReservationListItemSchema.parse(valid);
+    expect(r.parentReservationId).toBeUndefined();
+  });
 });
 
 describe('ReservationsListResponseSchema', () => {

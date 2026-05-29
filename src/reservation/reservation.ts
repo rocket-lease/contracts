@@ -117,6 +117,16 @@ export type ReservationVehicleSummary = z.infer<
 >;
 
 
+export const ReservationChainItemSchema = z.object({
+  id: z.string().uuid(),
+  status: ReservationStatusSchema,
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
+  totalCents: z.number().int().nonnegative(),
+  parentReservationId: z.string().uuid().nullable(),
+});
+export type ReservationChainItem = z.infer<typeof ReservationChainItemSchema>;
+
 export const GetReservationResponseSchema = z.object({
   id: z.string().uuid(),
   vehicleId: z.string().uuid(),
@@ -140,6 +150,8 @@ export const GetReservationResponseSchema = z.object({
   startedAt: z.string().datetime().nullable().optional(),
   completedAt: z.string().datetime().nullable().optional(),
   rejectionReason: z.string().nullable(),
+  parentReservationId: z.string().uuid().nullable().optional(),
+  chain: z.array(ReservationChainItemSchema).optional(),
   depositPercentageSnapshot: DepositPercentageSchema,
   basePriceCentsSnapshot: z.number().int().nonnegative(),
   cancellationPolicySnapshot: CancellationPolicySchema,
@@ -188,6 +200,26 @@ export const RejectReservationResponseSchema = z.object({
 });
 export type RejectReservationResponse = z.infer<
   typeof RejectReservationResponseSchema
+>;
+
+export const ExtendReservationRequestSchema = z.object({
+  newEndAt: z.string().datetime(),
+});
+export type ExtendReservationRequest = z.infer<
+  typeof ExtendReservationRequestSchema
+>;
+
+export const ExtendReservationResponseSchema = z.object({
+  id: z.string().uuid(),
+  parentReservationId: z.string().uuid(),
+  status: z.union([z.literal('pending_approval'), z.literal('pending_payment')]),
+  holdExpiresAt: z.string().datetime(),
+  totalCents: z.number().int().nonnegative(),
+  currency: z.literal('ARS'),
+  requiresApproval: z.boolean(),
+});
+export type ExtendReservationResponse = z.infer<
+  typeof ExtendReservationResponseSchema
 >;
 
 

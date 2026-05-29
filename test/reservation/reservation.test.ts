@@ -17,6 +17,9 @@ import {
   ConfirmReturnRequestSchema,
   ConfirmReturnResponseSchema,
   CancelReservationResponseSchema,
+  ExtendReservationRequestSchema,
+  ExtendReservationResponseSchema,
+  ReservationChainItemSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -519,6 +522,168 @@ describe('VerifyVoucherResponseSchema', () => {
     });
     expect(r.isValid).toBe(false);
     expect(r.status).toBe('cancelled');
+  });
+});
+
+describe('ExtendReservationRequestSchema', () => {
+  it('parses a valid request', () => {
+    const r = ExtendReservationRequestSchema.parse({
+      newEndAt: '2026-06-05T10:00:00.000Z',
+    });
+    expect(r.newEndAt).toBe('2026-06-05T10:00:00.000Z');
+  });
+
+  it('rechaza newEndAt con formato invalido', () => {
+    expect(() =>
+      ExtendReservationRequestSchema.parse({ newEndAt: 'manana' }),
+    ).toThrow();
+  });
+
+  it('rechaza body sin newEndAt', () => {
+    expect(() => ExtendReservationRequestSchema.parse({})).toThrow();
+  });
+});
+
+describe('ExtendReservationResponseSchema', () => {
+  const base = {
+    id: validUuid,
+    parentReservationId: validUuid2,
+    holdExpiresAt: '2026-06-01T10:10:00.000Z',
+    totalCents: 25000,
+    currency: 'ARS' as const,
+    requiresApproval: false,
+  };
+
+  it('parses pending_payment (auto-accept)', () => {
+    const r = ExtendReservationResponseSchema.parse({
+      ...base,
+      status: 'pending_payment',
+    });
+    expect(r.status).toBe('pending_payment');
+    expect(r.requiresApproval).toBe(false);
+  });
+
+  it('parses pending_approval (requires approval)', () => {
+    const r = ExtendReservationResponseSchema.parse({
+      ...base,
+      status: 'pending_approval',
+      requiresApproval: true,
+    });
+    expect(r.status).toBe('pending_approval');
+    expect(r.requiresApproval).toBe(true);
+  });
+
+  it('rechaza status confirmed', () => {
+    expect(() =>
+      ExtendReservationResponseSchema.parse({ ...base, status: 'confirmed' }),
+    ).toThrow();
+  });
+
+  it('exige parentReservationId', () => {
+    const { parentReservationId, ...rest } = base;
+    void parentReservationId;
+    expect(() =>
+      ExtendReservationResponseSchema.parse({
+        ...rest,
+        status: 'pending_payment',
+      }),
+    ).toThrow();
+  });
+});
+
+describe('ReservationChainItemSchema', () => {
+  it('parses a chain item with parentReservationId null (root)', () => {
+    const r = ReservationChainItemSchema.parse({
+      id: validUuid,
+      status: 'in_progress',
+      startAt: '2026-06-01T10:00:00.000Z',
+      endAt: '2026-06-03T10:00:00.000Z',
+      totalCents: 50000,
+      parentReservationId: null,
+    });
+    expect(r.parentReservationId).toBeNull();
+  });
+
+  it('parses a chain item with parentReservationId set (extension)', () => {
+    const r = ReservationChainItemSchema.parse({
+      id: validUuid2,
+      status: 'confirmed',
+      startAt: '2026-06-03T10:00:00.000Z',
+      endAt: '2026-06-05T10:00:00.000Z',
+      totalCents: 50000,
+      parentReservationId: validUuid,
+    });
+    expect(r.parentReservationId).toBe(validUuid);
+  });
+});
+
+describe('GetReservationResponseSchema (extension fields)', () => {
+  const baseReservation = {
+    id: validUuid,
+    vehicleId: validUuid2,
+    conductorId: validUuid3,
+    rentadorId: validUuid4,
+    status: 'in_progress' as const,
+    startAt: '2026-06-01T10:00:00.000Z',
+    endAt: '2026-06-03T10:00:00.000Z',
+    holdExpiresAt: null,
+    totalCents: 50000,
+    currency: 'ARS' as const,
+    paymentMethod: 'credit_card' as const,
+    walletProvider: null,
+    contractAcceptedAt: '2026-05-30T12:00:00.000Z',
+    paidAt: '2026-05-30T12:05:00.000Z',
+    transferExpiresAt: null,
+    transferCode: null,
+    transferAlias: null,
+    rejectionReason: null,
+    depositPercentageSnapshot: null,
+    basePriceCentsSnapshot: 25000,
+    cancellationPolicySnapshot: 'FLEXIBLE' as const,
+    maxKilometrageSnapshot: { type: 'UNLIMITED' as const, value: null },
+    rentalTimeConstraintsSnapshot: { minDays: 1 },
+    createdAt: '2026-05-30T12:00:00.000Z',
+    updatedAt: '2026-05-30T12:05:00.000Z',
+    vehicle: {
+      id: validUuid2,
+      brand: 'Toyota',
+      model: 'Corolla',
+      year: 2020,
+      photo: null,
+    },
+    rentador: { id: validUuid4, name: 'Lucas', avatarUrl: null },
+  };
+
+  it('acepta parentReservationId y chain ausentes (reserva sin extensiones)', () => {
+    const r = GetReservationResponseSchema.parse(baseReservation);
+    expect(r.parentReservationId).toBeUndefined();
+    expect(r.chain).toBeUndefined();
+  });
+
+  it('acepta parentReservationId null y chain con items', () => {
+    const r = GetReservationResponseSchema.parse({
+      ...baseReservation,
+      parentReservationId: null,
+      chain: [
+        {
+          id: validUuid,
+          status: 'in_progress',
+          startAt: '2026-06-01T10:00:00.000Z',
+          endAt: '2026-06-03T10:00:00.000Z',
+          totalCents: 50000,
+          parentReservationId: null,
+        },
+        {
+          id: '018f8b3c-4d0e-7000-8000-000000000005',
+          status: 'confirmed',
+          startAt: '2026-06-03T10:00:00.000Z',
+          endAt: '2026-06-05T10:00:00.000Z',
+          totalCents: 50000,
+          parentReservationId: validUuid,
+        },
+      ],
+    });
+    expect(r.chain).toHaveLength(2);
   });
 });
 
