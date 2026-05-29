@@ -21,6 +21,7 @@ export const ReservationListItemSchema = z.object({
   paidAt: z.string().datetime().nullable(),
   voucherToken: z.string().uuid().nullable().optional(),
   rejectionReason: z.string().nullable(),
+  parentReservationId: z.string().uuid().nullable().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
