@@ -4,6 +4,7 @@ import {
   PaymentMethodSchema,
   ReservationStatusSchema,
   ReservationVehicleSummarySchema,
+  CancelledBySchema,
 } from './reservation';
 
 export const ReservationListItemSchema = z.object({
@@ -21,6 +22,9 @@ export const ReservationListItemSchema = z.object({
   paidAt: z.string().datetime().nullable(),
   voucherToken: z.string().uuid().nullable().optional(),
   rejectionReason: z.string().nullable(),
+  cancelledAt: z.string().datetime().nullable().optional(),
+  cancelledBy: CancelledBySchema.nullable().optional(),
+  cancellationReason: z.string().nullable().optional(),
   parentReservationId: z.string().uuid().nullable().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
