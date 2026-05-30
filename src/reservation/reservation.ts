@@ -179,8 +179,8 @@ export type CancelReservationResponse = z.infer<
 
 export const ApproveReservationResponseSchema = z.object({
   id: z.string().uuid(),
-  status: z.literal('pending_payment'),
-  holdExpiresAt: z.string().datetime(),
+  status: z.union([z.literal('pending_payment'), z.literal('confirmed')]),
+  holdExpiresAt: z.string().datetime().nullable(),
 });
 export type ApproveReservationResponse = z.infer<
   typeof ApproveReservationResponseSchema

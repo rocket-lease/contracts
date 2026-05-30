@@ -177,11 +177,21 @@ describe('ApproveReservationResponseSchema', () => {
     expect(r.status).toBe('pending_payment');
   });
 
-  it('rejects wrong status literal', () => {
+  it('parses a confirmed response with null hold', () => {
+    const r = ApproveReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'confirmed',
+      holdExpiresAt: null,
+    });
+    expect(r.status).toBe('confirmed');
+    expect(r.holdExpiresAt).toBeNull();
+  });
+
+  it('rejects an invalid status', () => {
     expect(() =>
       ApproveReservationResponseSchema.parse({
         id: validUuid,
-        status: 'confirmed',
+        status: 'in_progress',
         holdExpiresAt: '2026-06-01T10:10:00.000Z',
       }),
     ).toThrow();
