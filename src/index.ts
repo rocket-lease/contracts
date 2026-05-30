@@ -23,3 +23,4 @@ export * from './types/payment-method.types';
 export * from './client/payment-method.endpoints';
 export * from './messaging/message.schema';
 export * from './bank-account/bank-account';
+export * from './wallet/wallet';

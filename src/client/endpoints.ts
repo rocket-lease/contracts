@@ -8,6 +8,11 @@ export const apiEndpoints = {
   profile: {
     me: '/profile/me',
   },
+  wallet: {
+    balance: '/wallet/balance',
+    transactions: '/wallet/transactions',
+    withdraw: '/wallet/withdrawals',
+  },
   reservations: {
     list: '/reservations',
   },
