@@ -149,6 +149,9 @@ export const GetReservationResponseSchema = z.object({
   returnQrToken: z.string().uuid().nullable().optional(),
   startedAt: z.string().datetime().nullable().optional(),
   completedAt: z.string().datetime().nullable().optional(),
+  cancelledAt: z.string().datetime().nullable().optional(),
+  cancelledBy: z.enum(['owner', 'conductor']).nullable().optional(),
+  cancellationReason: z.string().nullable().optional(),
   rejectionReason: z.string().nullable(),
   parentReservationId: z.string().uuid().nullable().optional(),
   chain: z.array(ReservationChainItemSchema).optional(),
@@ -166,10 +169,20 @@ export type GetReservationResponse = z.infer<
   typeof GetReservationResponseSchema
 >;
 
+export const CancelledBySchema = z.enum(['owner', 'conductor']);
+export type CancelledBy = z.infer<typeof CancelledBySchema>;
+
+export const CancelReservationRequestSchema = z.object({
+  reason: z.string().trim().max(280).optional(),
+});
+export type CancelReservationRequest = z.infer<typeof CancelReservationRequestSchema>;
+
 export const CancelReservationResponseSchema = z.object({
   id: z.string().uuid(),
   status: z.literal('cancelled'),
+  cancelledBy: CancelledBySchema,
   refundCents: z.number().int().nonnegative(),
+  reputationPenalty: z.number().int().nonpositive(),
   balanceInCents: z.number().int().nonnegative(),
   currency: z.literal('ARS'),
 });

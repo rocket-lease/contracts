@@ -10,6 +10,9 @@ export const apiEndpoints = {
   },
   reservations: {
     list: '/reservations',
+    cancel: (id: string) => `/reservations/${id}/cancel`,
+    confirmPickup: (id: string) => `/reservations/${id}/pickup`,
+    verifyVoucher: (token: string) => `/reservations/voucher/${token}`,
   },
   vehicles: {
     list: '/vehicle',

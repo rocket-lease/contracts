@@ -16,6 +16,7 @@ import {
   ConfirmPickupResponseSchema,
   ConfirmReturnRequestSchema,
   ConfirmReturnResponseSchema,
+  CancelReservationRequestSchema,
   CancelReservationResponseSchema,
   ExtendReservationRequestSchema,
   ExtendReservationResponseSchema,
@@ -268,18 +269,100 @@ describe('ConfirmReservationPaymentResponseSchema', () => {
   });
 });
 
+describe('CancelReservationRequestSchema', () => {
+  it('parses without reason', () => {
+    const r = CancelReservationRequestSchema.parse({});
+    expect(r.reason).toBeUndefined();
+  });
+
+  it('parses with reason under 280 chars', () => {
+    const r = CancelReservationRequestSchema.parse({ reason: 'Tuve un inconveniente' });
+    expect(r.reason).toBe('Tuve un inconveniente');
+  });
+
+  it('rejects reason over 280 chars', () => {
+    expect(() => CancelReservationRequestSchema.parse({ reason: 'x'.repeat(281) })).toThrow();
+  });
+
+  it('trims surrounding whitespace', () => {
+    const r = CancelReservationRequestSchema.parse({ reason: '  motivo  ' });
+    expect(r.reason).toBe('motivo');
+  });
+});
+
 describe('CancelReservationResponseSchema', () => {
-  it('parses a response with refund and updated balance', () => {
+  it('parses with cancelledBy owner and reputationPenalty', () => {
     const r = CancelReservationResponseSchema.parse({
       id: validUuid,
       status: 'cancelled',
+      cancelledBy: 'owner',
       refundCents: 240000,
+      reputationPenalty: -15,
       balanceInCents: 480000,
       currency: 'ARS',
     });
 
+    expect(r.cancelledBy).toBe('owner');
+    expect(r.reputationPenalty).toBe(-15);
     expect(r.refundCents).toBe(240000);
     expect(r.balanceInCents).toBe(480000);
+  });
+
+  it('parses with cancelledBy conductor and no reputationPenalty', () => {
+    const r = CancelReservationResponseSchema.parse({
+      id: validUuid,
+      status: 'cancelled',
+      cancelledBy: 'conductor',
+      refundCents: 120000,
+      reputationPenalty: 0,
+      balanceInCents: 480000,
+      currency: 'ARS',
+    });
+
+    expect(r.cancelledBy).toBe('conductor');
+    expect(r.reputationPenalty).toBe(0);
+  });
+
+  it('rejects positive reputationPenalty', () => {
+    expect(() =>
+      CancelReservationResponseSchema.parse({
+        id: validUuid,
+        status: 'cancelled',
+        cancelledBy: 'owner',
+        refundCents: 240000,
+        reputationPenalty: 15,
+        balanceInCents: 480000,
+        currency: 'ARS',
+      })
+    ).toThrow();
+  });
+
+  it('rejects invalid cancelledBy', () => {
+    expect(() =>
+      CancelReservationResponseSchema.parse({
+        id: validUuid,
+        status: 'cancelled',
+        cancelledBy: 'admin',
+        refundCents: 240000,
+        reputationPenalty: 0,
+        balanceInCents: 480000,
+        currency: 'ARS',
+      })
+    ).toThrow();
+  });
+
+  it('rejects negative refundCents', () => {
+    expect(() =>
+      CancelReservationResponseSchema.parse({
+        id: validUuid,
+        status: 'cancelled',
+        cancelledBy: 'conductor',
+        refundCents: -100,
+        reputationPenalty: 0,
+        balanceInCents: 480000,
+        currency: 'ARS',
+      })
+    ).toThrow();
   });
 });
 
@@ -368,6 +451,27 @@ describe('GetReservationResponseSchema', () => {
       depositPercentageSnapshot: 30,
     });
     expect(r.depositPercentageSnapshot).toBe(30);
+  });
+
+  it('parses a cancelled reservation with cancellation fields', () => {
+    const r = GetReservationResponseSchema.parse({
+      ...valid,
+      status: 'cancelled',
+      cancelledAt: '2026-06-01T11:00:00.000Z',
+      cancelledBy: 'owner',
+      cancellationReason: 'Vehicle needs repair',
+    });
+    expect(r.status).toBe('cancelled');
+    expect(r.cancelledAt).toBe('2026-06-01T11:00:00.000Z');
+    expect(r.cancelledBy).toBe('owner');
+    expect(r.cancellationReason).toBe('Vehicle needs repair');
+  });
+
+  it('parses a non-cancelled reservation without cancellation fields', () => {
+    const r = GetReservationResponseSchema.parse(valid);
+    expect(r.cancelledAt).toBeUndefined();
+    expect(r.cancelledBy).toBeUndefined();
+    expect(r.cancellationReason).toBeUndefined();
   });
 });
 

@@ -149,6 +149,26 @@ describe('ReservationListItemSchema', () => {
     const r = ReservationListItemSchema.parse(valid);
     expect(r.parentReservationId).toBeUndefined();
   });
+
+  it('parses a list item with cancellation fields', () => {
+    const r = ReservationListItemSchema.parse({
+      ...valid,
+      status: 'cancelled',
+      cancelledAt: '2026-05-18T10:00:00.000Z',
+      cancelledBy: 'conductor',
+      cancellationReason: 'Cambio de planes',
+    });
+    expect(r.cancelledAt).toBe('2026-05-18T10:00:00.000Z');
+    expect(r.cancelledBy).toBe('conductor');
+    expect(r.cancellationReason).toBe('Cambio de planes');
+  });
+
+  it('parses a non-cancelled item without cancellation fields', () => {
+    const r = ReservationListItemSchema.parse(valid);
+    expect(r.cancelledAt).toBeUndefined();
+    expect(r.cancelledBy).toBeUndefined();
+    expect(r.cancellationReason).toBeUndefined();
+  });
 });
 
 describe('ReservationsListResponseSchema', () => {
