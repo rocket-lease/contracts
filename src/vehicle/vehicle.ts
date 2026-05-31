@@ -65,7 +65,11 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
     isAccessible: z.boolean().optional(),
     reservationRuleSetId: z.string().uuid().nullable().optional(),
     characteristics: z.array(CharacteristicSchema).optional(),
-    autoAccept: z.boolean().nullable().optional()
+    autoAccept: z.boolean().nullable().optional(),
+    homeDeliveryEnabled: z.boolean().optional(),
+    homeDeliveryFeeCents: z.number().int().nonnegative().nullable().optional(),
+    homeReturnEnabled: z.boolean().optional(),
+    homeReturnFeeCents: z.number().int().nonnegative().nullable().optional(),
 }).strict();
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
@@ -115,6 +119,10 @@ export const GetVehicleResponseSchema = z.object({
     autoAccept: z.boolean().nullable(),
     isPromoted: z.boolean().optional(),
     documentStatus: VehicleDocumentStatusSchema.optional(),
+    homeDeliveryEnabled: z.boolean(),
+    homeDeliveryFeeCents: z.number().int().nonnegative().nullable(),
+    homeReturnEnabled: z.boolean(),
+    homeReturnFeeCents: z.number().int().nonnegative().nullable(),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 
