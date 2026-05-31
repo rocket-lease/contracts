@@ -26,6 +26,11 @@ export const apiEndpoints = {
     documentsRequired: (id: string) => `/vehicle/${id}/documents/required`,
     documentsProcess: '/vehicle/documents/process',
   },
+  pushSubscriptions: {
+    register: '/push-subscriptions',
+    unregister: '/push-subscriptions',
+    vapidKey: '/push-subscriptions/vapid-key',
+  },
 } as const;
 
 export type ApiEndpoints = typeof apiEndpoints;
