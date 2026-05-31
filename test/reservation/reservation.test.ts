@@ -257,15 +257,34 @@ describe('ConfirmReservationPaymentRequestSchema', () => {
 });
 
 describe('ConfirmReservationPaymentResponseSchema', () => {
-  it('parses a valid response', () => {
+  it('parses a valid full-payment response', () => {
     const r = ConfirmReservationPaymentResponseSchema.parse({
       id: validUuid,
       status: 'confirmed',
       paidAt: '2026-06-01T10:05:00.000Z',
       voucherToken: validUuid2,
+      paidCents: 48000,
+      balanceCents: 0,
+      balanceDueAt: null,
     });
     expect(r.status).toBe('confirmed');
     expect(r.voucherToken).toBe(validUuid2);
+    expect(r.balanceCents).toBe(0);
+  });
+
+  it('parses a deposit response (US-26) with pending_balance', () => {
+    const r = ConfirmReservationPaymentResponseSchema.parse({
+      id: validUuid,
+      status: 'pending_balance',
+      paidAt: '2026-06-01T10:05:00.000Z',
+      voucherToken: null,
+      paidCents: 14400,
+      balanceCents: 33600,
+      balanceDueAt: '2026-06-05T10:05:00.000Z',
+    });
+    expect(r.status).toBe('pending_balance');
+    expect(r.voucherToken).toBeNull();
+    expect(r.balanceCents).toBe(33600);
   });
 });
 

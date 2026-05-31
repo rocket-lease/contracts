@@ -18,6 +18,10 @@ export const apiEndpoints = {
     cancel: (id: string) => `/reservations/${id}/cancel`,
     confirmPickup: (id: string) => `/reservations/${id}/pickup`,
     verifyVoucher: (token: string) => `/reservations/voucher/${token}`,
+    payBalance: (id: string) => `/reservations/${id}/balance`,
+    balanceTransfer: (id: string) => `/reservations/${id}/balance/transfer`,
+    balanceTransferConfirm: (id: string) =>
+      `/reservations/${id}/balance/transfer/confirm`,
   },
   vehicles: {
     list: '/vehicle',

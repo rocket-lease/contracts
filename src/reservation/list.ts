@@ -21,6 +21,8 @@ export const ReservationListItemSchema = z.object({
   paymentMethod: PaymentMethodSchema.nullable(),
   paidAt: z.string().datetime().nullable(),
   voucherToken: z.string().uuid().nullable().optional(),
+  depositPaidCents: z.number().int().nonnegative().nullable().optional(),
+  balanceDueAt: z.string().datetime().nullable().optional(),
   rejectionReason: z.string().nullable(),
   cancelledAt: z.string().datetime().nullable().optional(),
   cancelledBy: CancelledBySchema.nullable().optional(),
