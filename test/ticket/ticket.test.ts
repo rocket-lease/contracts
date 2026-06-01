@@ -2,10 +2,12 @@ import { describe, it, expect } from 'vitest';
 import {
   TicketStatusSchema,
   TicketReportedBySchema,
+  TicketTypeSchema,
   CreateTicketRequestSchema,
   TicketResponseSchema,
   GetMyTicketsResponseSchema,
   TICKET_STATUS,
+  TICKET_TYPE,
 } from '../../src/ticket/ticket';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -32,6 +34,23 @@ describe('TicketStatusSchema', () => {
   });
 });
 
+describe('TicketTypeSchema', () => {
+  it('accepts vehicle_issue and counterpart_report', () => {
+    expect(TicketTypeSchema.parse('vehicle_issue')).toBe('vehicle_issue');
+    expect(TicketTypeSchema.parse('counterpart_report')).toBe('counterpart_report');
+  });
+
+  it('rejects unknown type', () => {
+    expect(TicketTypeSchema.safeParse('other').success).toBe(false);
+    expect(TicketTypeSchema.safeParse('').success).toBe(false);
+  });
+
+  it('TICKET_TYPE exposes enum values', () => {
+    expect(TICKET_TYPE.vehicle_issue).toBe('vehicle_issue');
+    expect(TICKET_TYPE.counterpart_report).toBe('counterpart_report');
+  });
+});
+
 describe('TicketReportedBySchema', () => {
   it('accepts conductor and rentador', () => {
     expect(TicketReportedBySchema.parse('conductor')).toBe('conductor');
@@ -47,6 +66,7 @@ describe('TicketReportedBySchema', () => {
 describe('CreateTicketRequestSchema', () => {
   const valid = {
     reservationId: validUuid,
+    type: 'vehicle_issue' as const,
     description: 'Goma pinchada al retirar el vehículo',
     photoUrls: [],
   };
@@ -68,9 +88,19 @@ describe('CreateTicketRequestSchema', () => {
   it('applies default empty array when photoUrls is omitted', () => {
     const result = CreateTicketRequestSchema.parse({
       reservationId: validUuid,
+      type: 'counterpart_report',
       description: 'Problema con el freno',
     });
     expect(result.photoUrls).toEqual([]);
+  });
+
+  it('rejects if type is missing', () => {
+    const { type: _, ...noType } = valid;
+    expect(CreateTicketRequestSchema.safeParse(noType).success).toBe(false);
+  });
+
+  it('rejects if type is invalid', () => {
+    expect(CreateTicketRequestSchema.safeParse({ ...valid, type: 'unknown' }).success).toBe(false);
   });
 
   it('rejects if reservationId is not a UUID', () => {
@@ -112,6 +142,7 @@ describe('TicketResponseSchema', () => {
   const valid = {
     id: validUuid,
     reservationId: validUuid2,
+    type: 'vehicle_issue',
     reportedBy: 'conductor',
     status: 'open',
     description: 'Goma pinchada',
@@ -129,6 +160,10 @@ describe('TicketResponseSchema', () => {
 
   it('rejects if id is not a UUID', () => {
     expect(TicketResponseSchema.safeParse({ ...valid, id: 'bad' }).success).toBe(false);
+  });
+
+  it('rejects if type is invalid', () => {
+    expect(TicketResponseSchema.safeParse({ ...valid, type: 'unknown' }).success).toBe(false);
   });
 
   it('rejects if status is invalid', () => {
@@ -156,6 +191,7 @@ describe('GetMyTicketsResponseSchema', () => {
       {
         id: validUuid,
         reservationId: validUuid2,
+        type: 'counterpart_report',
         reportedBy: 'rentador',
         status: 'under_review',
         description: 'Rayón en la puerta',
@@ -166,6 +202,7 @@ describe('GetMyTicketsResponseSchema', () => {
     ]);
     expect(result).toHaveLength(1);
     expect(result[0].reportedBy).toBe('rentador');
+    expect(result[0].type).toBe('counterpart_report');
   });
 
   it('rejects if any element is invalid', () => {
