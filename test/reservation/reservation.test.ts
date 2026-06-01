@@ -21,6 +21,7 @@ import {
   ExtendReservationRequestSchema,
   ExtendReservationResponseSchema,
   ReservationChainItemSchema,
+  ReservationAddressSchema,
 } from '../../src/reservation/reservation';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -424,6 +425,12 @@ describe('GetReservationResponseSchema', () => {
       name: 'Alice',
       avatarUrl: null,
     },
+    withHomeDelivery: false,
+    homeDeliveryFeeCentsSnapshot: null,
+    deliveryAddress: null,
+    withHomeReturn: false,
+    homeReturnFeeCentsSnapshot: null,
+    returnAddress: null,
   };
 
   it('parses a valid response', () => {
@@ -785,6 +792,12 @@ describe('GetReservationResponseSchema (extension fields)', () => {
       photo: null,
     },
     rentador: { id: validUuid4, name: 'Lucas', avatarUrl: null },
+    withHomeDelivery: false,
+    homeDeliveryFeeCentsSnapshot: null,
+    deliveryAddress: null,
+    withHomeReturn: false,
+    homeReturnFeeCentsSnapshot: null,
+    returnAddress: null,
   };
 
   it('acepta parentReservationId y chain ausentes (reserva sin extensiones)', () => {
@@ -817,6 +830,100 @@ describe('GetReservationResponseSchema (extension fields)', () => {
       ],
     });
     expect(r.chain).toHaveLength(2);
+  });
+});
+
+describe('ReservationAddressSchema', () => {
+  const validAddress = {
+    address: 'Av. Corrientes 1234, CABA',
+    latitude: -34.6037,
+    longitude: -58.3816,
+  };
+
+  it('parses a valid address', () => {
+    const r = ReservationAddressSchema.parse(validAddress);
+    expect(r.address).toBe('Av. Corrientes 1234, CABA');
+    expect(r.latitude).toBe(-34.6037);
+  });
+
+  it('rejects empty address string', () => {
+    expect(() => ReservationAddressSchema.parse({ ...validAddress, address: '' })).toThrow();
+  });
+
+  it('rejects latitude out of range', () => {
+    expect(() => ReservationAddressSchema.parse({ ...validAddress, latitude: 91 })).toThrow();
+    expect(() => ReservationAddressSchema.parse({ ...validAddress, latitude: -91 })).toThrow();
+  });
+
+  it('rejects longitude out of range', () => {
+    expect(() => ReservationAddressSchema.parse({ ...validAddress, longitude: 181 })).toThrow();
+    expect(() => ReservationAddressSchema.parse({ ...validAddress, longitude: -181 })).toThrow();
+  });
+
+  it('rejects missing fields', () => {
+    expect(() => ReservationAddressSchema.parse({ latitude: -34.6, longitude: -58.3 })).toThrow();
+  });
+});
+
+describe('CreateReservationRequestSchema — home delivery fields', () => {
+  const base = {
+    vehicleId: validUuid,
+    startAt: '2026-06-01T10:00:00.000Z',
+    endAt: '2026-06-03T10:00:00.000Z',
+    contractAccepted: true,
+  };
+  const validAddr = { address: 'Av. Corrientes 1234', latitude: -34.6037, longitude: -58.3816 };
+
+  it('defaults withHomeDelivery and withHomeReturn to false', () => {
+    const r = CreateReservationRequestSchema.parse(base);
+    expect(r.withHomeDelivery).toBe(false);
+    expect(r.withHomeReturn).toBe(false);
+    expect(r.deliveryAddress).toBeUndefined();
+    expect(r.returnAddress).toBeUndefined();
+  });
+
+  it('accepts withHomeDelivery=true with a valid delivery address', () => {
+    const r = CreateReservationRequestSchema.parse({
+      ...base,
+      withHomeDelivery: true,
+      deliveryAddress: validAddr,
+    });
+    expect(r.withHomeDelivery).toBe(true);
+    expect(r.deliveryAddress?.address).toBe('Av. Corrientes 1234');
+  });
+
+  it('accepts withHomeReturn=true with a valid return address', () => {
+    const r = CreateReservationRequestSchema.parse({
+      ...base,
+      withHomeReturn: true,
+      returnAddress: validAddr,
+    });
+    expect(r.withHomeReturn).toBe(true);
+    expect(r.returnAddress?.latitude).toBe(-34.6037);
+  });
+
+  it('accepts both delivery and return with different addresses', () => {
+    const returnAddr = { address: 'Corrientes 9999', latitude: -34.61, longitude: -58.39 };
+    const r = CreateReservationRequestSchema.parse({
+      ...base,
+      withHomeDelivery: true,
+      deliveryAddress: validAddr,
+      withHomeReturn: true,
+      returnAddress: returnAddr,
+    });
+    expect(r.withHomeDelivery).toBe(true);
+    expect(r.withHomeReturn).toBe(true);
+    expect(r.deliveryAddress?.address).not.toBe(r.returnAddress?.address);
+  });
+
+  it('rejects invalid deliveryAddress (bad latitude)', () => {
+    expect(() =>
+      CreateReservationRequestSchema.parse({
+        ...base,
+        withHomeDelivery: true,
+        deliveryAddress: { address: 'Somewhere', latitude: 999, longitude: -58 },
+      }),
+    ).toThrow();
   });
 });
 
