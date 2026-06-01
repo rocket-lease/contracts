@@ -7,6 +7,7 @@ import {
   MaxKilometrageSchema,
   RentalTimeConstraintsSchema,
 } from '../vehicle/reservation-rules';
+import { ReviewItemSchema } from '../schemas/review.schema';
 
 export const ReservationAddressSchema = z.object({
   address: z.string().min(1),
@@ -184,6 +185,7 @@ export type ConfirmBalanceTransferResponse = z.infer<
 
 export const ReservationVehicleSummarySchema = z.object({
   id: z.string().uuid(),
+  plate: z.string(),
   brand: z.string(),
   model: z.string(),
   year: z.number().int(),
@@ -256,6 +258,7 @@ export const GetReservationResponseSchema = z.object({
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
   rentador: UserPublicSummarySchema,
+  review: ReviewItemSchema.nullable().optional(),
 });
 export type GetReservationResponse = z.infer<
   typeof GetReservationResponseSchema
