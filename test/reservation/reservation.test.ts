@@ -128,6 +128,17 @@ describe('CreateReservationResponseSchema', () => {
       holdExpiresAt: '2026-06-01T10:10:00.000Z',
       totalCents: 4800000,
       currency: 'ARS',
+      pricingSnapshot: {
+        vehicleId: validUuid2,
+        currency: 'ARS',
+        basePriceCents: 10000,
+        durationDays: 2,
+        subtotalCents: 20000,
+        appliedDiscountTier: null,
+        appliedDiscountPercentage: 0,
+        discountCents: 0,
+        totalCents: 20000,
+      },
     });
     expect(r.status).toBe('pending_payment');
   });
@@ -140,6 +151,17 @@ describe('CreateReservationResponseSchema', () => {
         holdExpiresAt: '2026-06-01T10:10:00.000Z',
         totalCents: -1,
         currency: 'ARS',
+        pricingSnapshot: {
+          vehicleId: validUuid2,
+          currency: 'ARS',
+          basePriceCents: 10000,
+          durationDays: 2,
+          subtotalCents: 20000,
+          appliedDiscountTier: null,
+          appliedDiscountPercentage: 0,
+          discountCents: 0,
+          totalCents: 20000,
+        },
       }),
     ).toThrow();
   });
@@ -151,6 +173,17 @@ describe('CreateReservationResponseSchema', () => {
       holdExpiresAt: '2026-06-02T10:00:00.000Z',
       totalCents: 4800000,
       currency: 'ARS',
+      pricingSnapshot: {
+        vehicleId: validUuid2,
+        currency: 'ARS',
+        basePriceCents: 10000,
+        durationDays: 2,
+        subtotalCents: 20000,
+        appliedDiscountTier: null,
+        appliedDiscountPercentage: 0,
+        discountCents: 0,
+        totalCents: 20000,
+      },
     });
     expect(r.status).toBe('pending_approval');
   });
@@ -163,6 +196,17 @@ describe('CreateReservationResponseSchema', () => {
         holdExpiresAt: '2026-06-01T10:10:00.000Z',
         totalCents: 1,
         currency: 'ARS',
+        pricingSnapshot: {
+          vehicleId: validUuid2,
+          currency: 'ARS',
+          basePriceCents: 10000,
+          durationDays: 2,
+          subtotalCents: 20000,
+          appliedDiscountTier: null,
+          appliedDiscountPercentage: 0,
+          discountCents: 0,
+          totalCents: 20000,
+        },
       }),
     ).toThrow();
   });
@@ -517,6 +561,17 @@ describe('VoucherSchema', () => {
     currency: 'ARS' as const,
     paymentMethod: 'credit_card' as const,
     paidAt: '2026-06-01T10:05:00.000Z',
+    pricingSnapshot: {
+      vehicleId: validUuid4,
+      currency: 'ARS' as const,
+      basePriceCents: 10000,
+      durationDays: 5,
+      subtotalCents: 50000,
+      appliedDiscountTier: null,
+      appliedDiscountPercentage: 0,
+      discountCents: 0,
+      totalCents: 50000,
+    },
   };
 
   it('parses a valid voucher', () => {
@@ -639,6 +694,17 @@ describe('VerifyVoucherResponseSchema', () => {
     paymentMethod: 'credit_card' as const,
     paidAt: '2026-06-01T10:05:00.000Z',
     isValid: true,
+    pricingSnapshot: {
+      vehicleId: validUuid3,
+      currency: 'ARS' as const,
+      basePriceCents: 10000,
+      durationDays: 5,
+      subtotalCents: 50000,
+      appliedDiscountTier: null,
+      appliedDiscountPercentage: 0,
+      discountCents: 0,
+      totalCents: 50000,
+    },
   };
 
   it('parses a valid verify response', () => {
@@ -685,6 +751,17 @@ describe('ExtendReservationResponseSchema', () => {
     totalCents: 25000,
     currency: 'ARS' as const,
     requiresApproval: false,
+    pricingSnapshot: {
+      vehicleId: validUuid3,
+      currency: 'ARS' as const,
+      basePriceCents: 10000,
+      durationDays: 3,
+      subtotalCents: 30000,
+      appliedDiscountTier: null,
+      appliedDiscountPercentage: 0,
+      discountCents: 0,
+      totalCents: 30000,
+    },
   };
 
   it('parses pending_payment (auto-accept)', () => {
@@ -775,6 +852,17 @@ describe('GetReservationResponseSchema (extension fields)', () => {
     cancellationPolicySnapshot: 'FLEXIBLE' as const,
     maxKilometrageSnapshot: { type: 'UNLIMITED' as const, value: null },
     rentalTimeConstraintsSnapshot: { minDays: 1 },
+    pricingSnapshot: {
+      vehicleId: validUuid2,
+      currency: 'ARS' as const,
+      basePriceCents: 25000,
+      durationDays: 2,
+      subtotalCents: 50000,
+      appliedDiscountTier: null,
+      appliedDiscountPercentage: 0,
+      discountCents: 0,
+      totalCents: 50000,
+    },
     createdAt: '2026-05-30T12:00:00.000Z',
     updatedAt: '2026-05-30T12:05:00.000Z',
     vehicle: {
