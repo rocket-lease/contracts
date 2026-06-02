@@ -469,6 +469,7 @@ describe('GetReservationResponseSchema', () => {
     updatedAt: '2026-06-01T10:00:00.000Z',
     vehicle: {
       id: validUuid2,
+      plate: 'AB123CD',
       brand: 'Ford',
       model: 'Ranger',
       year: 2023,
@@ -479,6 +480,12 @@ describe('GetReservationResponseSchema', () => {
       name: 'Alice',
       avatarUrl: null,
     },
+    withHomeDelivery: false,
+    homeDeliveryFeeCentsSnapshot: null,
+    deliveryAddress: null,
+    withHomeReturn: false,
+    homeReturnFeeCentsSnapshot: null,
+    returnAddress: null,
   };
 
   it('parses a valid response', () => {
@@ -561,6 +568,7 @@ describe('VoucherSchema', () => {
     },
     vehicle: {
       id: validUuid4,
+      plate: 'AB123CD',
       brand: 'Toyota',
       model: 'Etios',
       year: 2020,
@@ -688,6 +696,7 @@ describe('VerifyVoucherResponseSchema', () => {
     },
     vehicle: {
       id: validUuid3,
+      plate: 'AB123CD',
       brand: 'Toyota',
       model: 'Etios',
       year: 2020,
@@ -894,12 +903,19 @@ describe('GetReservationResponseSchema (extension fields)', () => {
     updatedAt: '2026-05-30T12:05:00.000Z',
     vehicle: {
       id: validUuid2,
+      plate: 'AB123CD',
       brand: 'Toyota',
       model: 'Corolla',
       year: 2020,
       photo: null,
     },
     rentador: { id: validUuid4, name: 'Lucas', avatarUrl: null },
+    withHomeDelivery: false,
+    homeDeliveryFeeCentsSnapshot: null,
+    deliveryAddress: null,
+    withHomeReturn: false,
+    homeReturnFeeCentsSnapshot: null,
+    returnAddress: null,
   };
 
   it('acepta parentReservationId y chain ausentes (reserva sin extensiones)', () => {

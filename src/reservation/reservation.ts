@@ -8,6 +8,14 @@ import {
   RentalTimeConstraintsSchema,
 } from '../vehicle/reservation-rules';
 import { PricingQuoteSchema } from '../pricing/pricing';
+import { ReviewItemSchema } from '../schemas/review.schema';
+
+export const ReservationAddressSchema = z.object({
+  address: z.string().min(1),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
+export type ReservationAddress = z.infer<typeof ReservationAddressSchema>;
 
 export const ReservationStatusSchema = z.enum([
   'pending_approval',
@@ -37,12 +45,16 @@ export const CreateReservationRequestSchema = z
     startAt: z.string().datetime(),
     endAt: z.string().datetime(),
     contractAccepted: z.boolean(),
+    withHomeDelivery: z.boolean().optional().default(false),
+    deliveryAddress: ReservationAddressSchema.optional(),
+    withHomeReturn: z.boolean().optional().default(false),
+    returnAddress: ReservationAddressSchema.optional(),
   })
   .refine((d) => new Date(d.endAt).getTime() > new Date(d.startAt).getTime(), {
     message: 'endAt must be after startAt',
     path: ['endAt'],
   });
-export type CreateReservationRequest = z.infer<
+export type CreateReservationRequest = z.input<
   typeof CreateReservationRequestSchema
 >;
 
@@ -175,6 +187,7 @@ export type ConfirmBalanceTransferResponse = z.infer<
 
 export const ReservationVehicleSummarySchema = z.object({
   id: z.string().uuid(),
+  plate: z.string(),
   brand: z.string(),
   model: z.string(),
   year: z.number().int(),
@@ -239,10 +252,17 @@ export const GetReservationResponseSchema = z.object({
   cancellationPolicySnapshot: CancellationPolicySchema,
   maxKilometrageSnapshot: MaxKilometrageSchema,
   rentalTimeConstraintsSnapshot: RentalTimeConstraintsSchema,
+  withHomeDelivery: z.boolean(),
+  homeDeliveryFeeCentsSnapshot: z.number().int().nonnegative().nullable(),
+  deliveryAddress: ReservationAddressSchema.nullable(),
+  withHomeReturn: z.boolean(),
+  homeReturnFeeCentsSnapshot: z.number().int().nonnegative().nullable(),
+  returnAddress: ReservationAddressSchema.nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
   rentador: UserPublicSummarySchema,
+  review: ReviewItemSchema.nullable().optional(),
 });
 export type GetReservationResponse = z.infer<
   typeof GetReservationResponseSchema

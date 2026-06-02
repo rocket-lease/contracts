@@ -95,6 +95,7 @@ describe('ReservationListItemSchema', () => {
     updatedAt: '2026-05-15T12:00:00.000Z',
     vehicle: {
       id: validUuid2,
+      plate: 'AB123CD',
       brand: 'Toyota',
       model: 'Etios',
       year: 2020,

@@ -26,6 +26,10 @@ export const apiEndpoints = {
     balanceTransferConfirm: (id: string) =>
       `/reservations/${id}/balance/transfer/confirm`,
   },
+  reviews: {
+    mine: '/reviews/rentador/mine',
+    create: (reservationId: string) => `/reservations/${reservationId}/review`,
+  },
   vehicles: {
     list: '/vehicle',
     documentsSubmit: (id: string) => `/vehicle/${id}/documents`,
