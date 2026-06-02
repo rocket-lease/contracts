@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ReservationRuleSetPublicSchema } from './reservation-rules';
 import { UserPublicSummarySchema } from '../profile/profile';
 import { VehicleDocumentStatusSchema } from './vehicle-document';
+import { PricingDiscountTiersSchema } from '../pricing/pricing';
 
 const TransmissionSchema = z.enum(['Manual', 'Automatico', 'Semiautomatico']);
 
@@ -40,6 +41,7 @@ export const CreateVehicleRequestSchema = z.object({
     color: z.string().min(1, "Color is required"),
     mileage: z.number().min(0, "Mileage cannot be negative"),
     basePriceCents: z.number().int().gt(0, "Base price must be greater than zero"),
+    discountTiers: PricingDiscountTiersSchema.optional(),
     description: z.string().nullable(),
     availableFrom: z.string(),
     characteristics: z.array(CharacteristicSchema).default([]),
@@ -65,6 +67,7 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
     isAccessible: z.boolean().optional(),
     reservationRuleSetId: z.string().uuid().nullable().optional(),
     characteristics: z.array(CharacteristicSchema).optional(),
+    discountTiers: PricingDiscountTiersSchema.optional(),
     autoAccept: z.boolean().nullable().optional(),
     homeDeliveryEnabled: z.boolean().optional(),
     homeDeliveryFeeCents: z.number().int().nonnegative().nullable().optional(),
@@ -101,6 +104,7 @@ export const GetVehicleResponseSchema = z.object({
     color: z.string().min(1),
     mileage: z.number().min(0),
     basePriceCents: z.number().int().gt(0),
+    discountTiers: PricingDiscountTiersSchema,
     description: z.string().nullable(),
     availableFrom: z.string(),
     characteristics: z.array(CharacteristicSchema),

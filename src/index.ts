@@ -9,6 +9,7 @@ export * from './vehicle/vehicle';
 export * from './vehicle/reservation-rules';
 export * from './vehicle/bulk-price';
 export * from './vehicle/vehicle-document';
+export * from './pricing/pricing';
 export * from './profile/profile';
 export * from './errors/error-codes';
 export * from './errors/problem-details';
