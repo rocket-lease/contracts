@@ -450,6 +450,17 @@ describe('GetReservationResponseSchema', () => {
     paidAt: null,
     rejectionReason: null,
     depositPercentageSnapshot: null,
+    pricingSnapshot: {
+      vehicleId: validUuid2,
+      currency: 'ARS' as const,
+      basePriceCents: 1500000,
+      durationDays: 3,
+      subtotalCents: 4800000,
+      appliedDiscountTier: { minimumDays: 7, discountPercentage: 10 },
+      appliedDiscountPercentage: 10,
+      discountCents: 480000,
+      totalCents: 4320000,
+    },
     basePriceCentsSnapshot: 1500000,
     cancellationPolicySnapshot: 'FLEXIBLE',
     maxKilometrageSnapshot: { type: 'UNLIMITED' },
@@ -802,6 +813,18 @@ describe('ExtendReservationResponseSchema', () => {
 });
 
 describe('ReservationChainItemSchema', () => {
+  const pricingSnapshot = {
+    vehicleId: validUuid,
+    currency: 'ARS' as const,
+    basePriceCents: 25000,
+    durationDays: 2,
+    subtotalCents: 50000,
+    appliedDiscountTier: null,
+    appliedDiscountPercentage: 0,
+    discountCents: 0,
+    totalCents: 50000,
+  };
+
   it('parses a chain item with parentReservationId null (root)', () => {
     const r = ReservationChainItemSchema.parse({
       id: validUuid,
@@ -810,8 +833,10 @@ describe('ReservationChainItemSchema', () => {
       endAt: '2026-06-03T10:00:00.000Z',
       totalCents: 50000,
       parentReservationId: null,
+      pricingSnapshot,
     });
     expect(r.parentReservationId).toBeNull();
+    expect(r.pricingSnapshot).toEqual(pricingSnapshot);
   });
 
   it('parses a chain item with parentReservationId set (extension)', () => {
@@ -822,8 +847,10 @@ describe('ReservationChainItemSchema', () => {
       endAt: '2026-06-05T10:00:00.000Z',
       totalCents: 50000,
       parentReservationId: validUuid,
+      pricingSnapshot,
     });
     expect(r.parentReservationId).toBe(validUuid);
+    expect(r.pricingSnapshot).toEqual(pricingSnapshot);
   });
 });
 
@@ -882,6 +909,17 @@ describe('GetReservationResponseSchema (extension fields)', () => {
   });
 
   it('acepta parentReservationId null y chain con items', () => {
+    const chainPricingSnapshot = {
+      vehicleId: validUuid,
+      currency: 'ARS' as const,
+      basePriceCents: 25000,
+      durationDays: 2,
+      subtotalCents: 50000,
+      appliedDiscountTier: null,
+      appliedDiscountPercentage: 0,
+      discountCents: 0,
+      totalCents: 50000,
+    };
     const r = GetReservationResponseSchema.parse({
       ...baseReservation,
       parentReservationId: null,
@@ -893,6 +931,7 @@ describe('GetReservationResponseSchema (extension fields)', () => {
           endAt: '2026-06-03T10:00:00.000Z',
           totalCents: 50000,
           parentReservationId: null,
+          pricingSnapshot: chainPricingSnapshot,
         },
         {
           id: '018f8b3c-4d0e-7000-8000-000000000005',
@@ -901,6 +940,7 @@ describe('GetReservationResponseSchema (extension fields)', () => {
           endAt: '2026-06-05T10:00:00.000Z',
           totalCents: 50000,
           parentReservationId: validUuid,
+          pricingSnapshot: chainPricingSnapshot,
         },
       ],
     });

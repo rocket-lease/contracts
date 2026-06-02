@@ -193,6 +193,7 @@ export const ReservationChainItemSchema = z.object({
   endAt: z.string().datetime(),
   totalCents: z.number().int().nonnegative(),
   parentReservationId: z.string().uuid().nullable(),
+  pricingSnapshot: PricingQuoteSchema,
 });
 export type ReservationChainItem = z.infer<typeof ReservationChainItemSchema>;
 
@@ -233,6 +234,7 @@ export const GetReservationResponseSchema = z.object({
   parentReservationId: z.string().uuid().nullable().optional(),
   chain: z.array(ReservationChainItemSchema).optional(),
   depositPercentageSnapshot: DepositPercentageSchema,
+  pricingSnapshot: PricingQuoteSchema,
   basePriceCentsSnapshot: z.number().int().nonnegative(),
   cancellationPolicySnapshot: CancellationPolicySchema,
   maxKilometrageSnapshot: MaxKilometrageSchema,
