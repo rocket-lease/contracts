@@ -18,6 +18,14 @@ export const apiEndpoints = {
     cancel: (id: string) => `/reservations/${id}/cancel`,
     confirmPickup: (id: string) => `/reservations/${id}/pickup`,
     verifyVoucher: (token: string) => `/reservations/voucher/${token}`,
+    payBalance: (id: string) => `/reservations/${id}/balance`,
+    balanceTransfer: (id: string) => `/reservations/${id}/balance/transfer`,
+    balanceTransferConfirm: (id: string) =>
+      `/reservations/${id}/balance/transfer/confirm`,
+  },
+  reviews: {
+    mine: '/reviews/rentador/mine',
+    create: (reservationId: string) => `/reservations/${reservationId}/review`,
   },
   vehicles: {
     list: '/vehicle',

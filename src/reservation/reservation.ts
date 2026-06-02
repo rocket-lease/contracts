@@ -7,10 +7,19 @@ import {
   MaxKilometrageSchema,
   RentalTimeConstraintsSchema,
 } from '../vehicle/reservation-rules';
+import { ReviewItemSchema } from '../schemas/review.schema';
+
+export const ReservationAddressSchema = z.object({
+  address: z.string().min(1),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
+export type ReservationAddress = z.infer<typeof ReservationAddressSchema>;
 
 export const ReservationStatusSchema = z.enum([
   'pending_approval',
   'pending_payment',
+  'pending_balance',
   'confirmed',
   'in_progress',
   'completed',
@@ -35,12 +44,16 @@ export const CreateReservationRequestSchema = z
     startAt: z.string().datetime(),
     endAt: z.string().datetime(),
     contractAccepted: z.boolean(),
+    withHomeDelivery: z.boolean().optional().default(false),
+    deliveryAddress: ReservationAddressSchema.optional(),
+    withHomeReturn: z.boolean().optional().default(false),
+    returnAddress: ReservationAddressSchema.optional(),
   })
   .refine((d) => new Date(d.endAt).getTime() > new Date(d.startAt).getTime(), {
     message: 'endAt must be after startAt',
     path: ['endAt'],
   });
-export type CreateReservationRequest = z.infer<
+export type CreateReservationRequest = z.input<
   typeof CreateReservationRequestSchema
 >;
 
@@ -55,9 +68,14 @@ export type CreateReservationResponse = z.infer<
   typeof CreateReservationResponseSchema
 >;
 
+export const PaymentModeSchema = z.enum(['full', 'deposit']);
+export type PaymentMode = z.infer<typeof PaymentModeSchema>;
+
 export const ConfirmReservationPaymentRequestSchema = z.object({
   paymentMethod: PaymentMethodSchema,
   walletProvider: z.string().optional(),
+  // Ausente o 'full' => paga el total. 'deposit' => paga solo la seña (US-26).
+  paymentMode: PaymentModeSchema.optional(),
 });
 export type ConfirmReservationPaymentRequest = z.infer<
   typeof ConfirmReservationPaymentRequestSchema
@@ -65,12 +83,38 @@ export type ConfirmReservationPaymentRequest = z.infer<
 
 export const ConfirmReservationPaymentResponseSchema = z.object({
   id: z.string().uuid(),
-  status: z.literal('confirmed'),
+  status: z.union([z.literal('confirmed'), z.literal('pending_balance')]),
   paidAt: z.string().datetime(),
-  voucherToken: z.string().uuid(),
+  // Present when status === 'confirmed' (full payment closes the reservation).
+  voucherToken: z.string().uuid().nullable().optional(),
+  // Amount actually charged in this call (deposit or full total).
+  paidCents: z.number().int().nonnegative(),
+  // Remaining balance still due. 0 when status === 'confirmed'.
+  balanceCents: z.number().int().nonnegative(),
+  // Deadline to pay the balance. Null when status === 'confirmed'.
+  balanceDueAt: z.string().datetime().nullable(),
 });
 export type ConfirmReservationPaymentResponse = z.infer<
   typeof ConfirmReservationPaymentResponseSchema
+>;
+
+export const ConfirmReservationBalanceRequestSchema = z.object({
+  paymentMethod: PaymentMethodSchema,
+  walletProvider: z.string().optional(),
+});
+export type ConfirmReservationBalanceRequest = z.infer<
+  typeof ConfirmReservationBalanceRequestSchema
+>;
+
+export const ConfirmReservationBalanceResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('confirmed'),
+  paidAt: z.string().datetime(),
+  voucherToken: z.string().uuid(),
+  balancePaidCents: z.number().int().nonnegative(),
+});
+export type ConfirmReservationBalanceResponse = z.infer<
+  typeof ConfirmReservationBalanceResponseSchema
 >;
 
 export const PaymentMethodsResponseSchema = z.object({
@@ -80,6 +124,13 @@ export type PaymentMethodsResponse = z.infer<
   typeof PaymentMethodsResponseSchema
 >;
 
+export const InitiateTransferRequestSchema = z.object({
+  paymentMode: PaymentModeSchema.optional(),
+});
+export type InitiateTransferRequest = z.infer<
+  typeof InitiateTransferRequestSchema
+>;
+
 export const InitiateTransferResponseSchema = z.object({
   id: z.string().uuid(),
   status: z.literal('pending_approval'),
@@ -87,6 +138,8 @@ export const InitiateTransferResponseSchema = z.object({
   transferAlias: z.string(),
   transferExpiresAt: z.string().datetime(),
   totalCents: z.number().int().nonnegative(),
+  // Amount to be transferred (deposit or full total depending on paymentMode).
+  amountCents: z.number().int().nonnegative(),
   currency: z.literal('ARS'),
 });
 export type InitiateTransferResponse = z.infer<
@@ -95,7 +148,7 @@ export type InitiateTransferResponse = z.infer<
 
 export const ConfirmTransferResponseSchema = z.object({
   id: z.string().uuid(),
-  status: z.literal('confirmed'),
+  status: z.union([z.literal('confirmed'), z.literal('pending_balance')]),
   paidAt: z.string().datetime(),
   voucher: z.object({ qrCode: z.string() }).optional(),
   notified: z.boolean().optional(),
@@ -104,8 +157,35 @@ export type ConfirmTransferResponse = z.infer<
   typeof ConfirmTransferResponseSchema
 >;
 
+// Balance transfer (paying the remaining balance of a pending_balance
+// reservation via bank transfer).
+export const InitiateBalanceTransferResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('pending_balance'),
+  transferCode: z.string(),
+  transferAlias: z.string(),
+  transferExpiresAt: z.string().datetime(),
+  amountCents: z.number().int().nonnegative(),
+  currency: z.literal('ARS'),
+});
+export type InitiateBalanceTransferResponse = z.infer<
+  typeof InitiateBalanceTransferResponseSchema
+>;
+
+export const ConfirmBalanceTransferResponseSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('confirmed'),
+  paidAt: z.string().datetime(),
+  voucher: z.object({ qrCode: z.string() }).optional(),
+  notified: z.boolean().optional(),
+});
+export type ConfirmBalanceTransferResponse = z.infer<
+  typeof ConfirmBalanceTransferResponseSchema
+>;
+
 export const ReservationVehicleSummarySchema = z.object({
   id: z.string().uuid(),
+  plate: z.string(),
   brand: z.string(),
   model: z.string(),
   year: z.number().int(),
@@ -142,9 +222,17 @@ export const GetReservationResponseSchema = z.object({
   walletProvider: z.string().nullable(),
   contractAcceptedAt: z.string().datetime().nullable(),
   paidAt: z.string().datetime().nullable(),
+  depositPaidCents: z.number().int().nonnegative().nullable().optional(),
+  depositPaidAt: z.string().datetime().nullable().optional(),
+  balanceDueAt: z.string().datetime().nullable().optional(),
+  balanceReminderSentAt: z.string().datetime().nullable().optional(),
   transferExpiresAt: z.string().datetime().nullable(),
   transferCode: z.string().nullable(),
   transferAlias: z.string().nullable(),
+  transferPaymentMode: z
+    .enum(['full', 'deposit', 'balance'])
+    .nullable()
+    .optional(),
   voucherToken: z.string().uuid().nullable().optional(),
   returnQrToken: z.string().uuid().nullable().optional(),
   startedAt: z.string().datetime().nullable().optional(),
@@ -160,10 +248,17 @@ export const GetReservationResponseSchema = z.object({
   cancellationPolicySnapshot: CancellationPolicySchema,
   maxKilometrageSnapshot: MaxKilometrageSchema,
   rentalTimeConstraintsSnapshot: RentalTimeConstraintsSchema,
+  withHomeDelivery: z.boolean(),
+  homeDeliveryFeeCentsSnapshot: z.number().int().nonnegative().nullable(),
+  deliveryAddress: ReservationAddressSchema.nullable(),
+  withHomeReturn: z.boolean(),
+  homeReturnFeeCentsSnapshot: z.number().int().nonnegative().nullable(),
+  returnAddress: ReservationAddressSchema.nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
   rentador: UserPublicSummarySchema,
+  review: ReviewItemSchema.nullable().optional(),
 });
 export type GetReservationResponse = z.infer<
   typeof GetReservationResponseSchema
