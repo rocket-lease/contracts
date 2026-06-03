@@ -34,3 +34,9 @@ export type TicketResponse = z.infer<typeof TicketResponseSchema>;
 
 export const GetMyTicketsResponseSchema = z.array(TicketResponseSchema);
 export type GetMyTicketsResponse = z.infer<typeof GetMyTicketsResponseSchema>;
+
+export const GetReservationTicketsResponseSchema = z.array(TicketResponseSchema);
+export type GetReservationTicketsResponse = z.infer<typeof GetReservationTicketsResponseSchema>;
+
+export const GetTicketsAgainstMeResponseSchema = z.array(TicketResponseSchema);
+export type GetTicketsAgainstMeResponse = z.infer<typeof GetTicketsAgainstMeResponseSchema>;
