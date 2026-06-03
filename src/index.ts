@@ -27,3 +27,4 @@ export * from './bank-account/bank-account';
 export * from './wallet/wallet';
 export * from './schemas/push-subscription.schema';
 export * from './schemas/review.schema';
+export * from './ticket/ticket';
