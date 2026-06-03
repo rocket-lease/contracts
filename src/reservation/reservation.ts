@@ -7,6 +7,7 @@ import {
   MaxKilometrageSchema,
   RentalTimeConstraintsSchema,
 } from '../vehicle/reservation-rules';
+import { PricingQuoteSchema } from '../pricing/pricing';
 import { ReviewItemSchema } from '../schemas/review.schema';
 
 export const ReservationAddressSchema = z.object({
@@ -63,6 +64,7 @@ export const CreateReservationResponseSchema = z.object({
   holdExpiresAt: z.string().datetime(),
   totalCents: z.number().int().nonnegative(),
   currency: z.literal('ARS'),
+  pricingSnapshot: PricingQuoteSchema,
 });
 export type CreateReservationResponse = z.infer<
   typeof CreateReservationResponseSchema
@@ -204,6 +206,7 @@ export const ReservationChainItemSchema = z.object({
   endAt: z.string().datetime(),
   totalCents: z.number().int().nonnegative(),
   parentReservationId: z.string().uuid().nullable(),
+  pricingSnapshot: PricingQuoteSchema,
 });
 export type ReservationChainItem = z.infer<typeof ReservationChainItemSchema>;
 
@@ -244,6 +247,7 @@ export const GetReservationResponseSchema = z.object({
   parentReservationId: z.string().uuid().nullable().optional(),
   chain: z.array(ReservationChainItemSchema).optional(),
   depositPercentageSnapshot: DepositPercentageSchema,
+  pricingSnapshot: PricingQuoteSchema,
   basePriceCentsSnapshot: z.number().int().nonnegative(),
   cancellationPolicySnapshot: CancellationPolicySchema,
   maxKilometrageSnapshot: MaxKilometrageSchema,
@@ -325,6 +329,7 @@ export const ExtendReservationResponseSchema = z.object({
   totalCents: z.number().int().nonnegative(),
   currency: z.literal('ARS'),
   requiresApproval: z.boolean(),
+  pricingSnapshot: PricingQuoteSchema,
 });
 export type ExtendReservationResponse = z.infer<
   typeof ExtendReservationResponseSchema
@@ -356,6 +361,7 @@ export const VoucherSchema = z.object({
   currency: z.literal('ARS'),
   paymentMethod: PaymentMethodSchema,
   paidAt: z.string().datetime(),
+  pricingSnapshot: PricingQuoteSchema,
 });
 export type Voucher = z.infer<typeof VoucherSchema>;
 
@@ -397,5 +403,6 @@ export const VerifyVoucherResponseSchema = z.object({
   paymentMethod: PaymentMethodSchema,
   paidAt: z.string().datetime(),
   isValid: z.boolean(),
+  pricingSnapshot: PricingQuoteSchema,
 });
 export type VerifyVoucherResponse = z.infer<typeof VerifyVoucherResponseSchema>;

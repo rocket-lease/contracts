@@ -13,6 +13,9 @@ export const apiEndpoints = {
     transactions: '/wallet/transactions',
     withdraw: '/wallet/withdrawals',
   },
+  pricing: {
+    quote: '/pricing/quote',
+  },
   reservations: {
     list: '/reservations',
     cancel: (id: string) => `/reservations/${id}/cancel`,
