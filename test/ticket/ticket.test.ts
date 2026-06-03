@@ -201,8 +201,8 @@ describe('GetMyTicketsResponseSchema', () => {
       },
     ]);
     expect(result).toHaveLength(1);
-    expect(result[0].reportedBy).toBe('rentador');
-    expect(result[0].type).toBe('counterpart_report');
+    expect(result[0]?.reportedBy).toBe('rentador');
+    expect(result[0]?.type).toBe('counterpart_report');
   });
 
   it('rejects if any element is invalid', () => {
