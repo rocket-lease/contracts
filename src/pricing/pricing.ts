@@ -26,6 +26,8 @@ export const PricingQuoteRequestSchema = z.object({
   vehicleId: z.string().uuid(),
   startAt: z.string().datetime(),
   endAt: z.string().datetime(),
+  withHomeDelivery: z.boolean().optional(),
+  withHomeReturn: z.boolean().optional(),
 }).refine((data) => new Date(data.endAt).getTime() > new Date(data.startAt).getTime(), {
   message: 'endAt must be after startAt',
   path: ['endAt'],
@@ -42,6 +44,10 @@ export const PricingQuoteSchema = z.object({
   appliedDiscountPercentage: z.number().int().min(0).max(50),
   discountCents: z.number().int().nonnegative(),
   totalCents: z.number().int().nonnegative(),
+  multiplier: z.number().min(0.7).max(2.0).optional(),
+  deliveryFeeCents: z.number().int().nonnegative().optional(),
+  quoteToken: z.string().uuid().optional(),
+  expiresAt: z.string().datetime().optional(),
 });
 export type PricingQuote = z.infer<typeof PricingQuoteSchema>;
 

@@ -42,6 +42,9 @@ export const apiEndpoints = {
     unregister: '/push-subscriptions',
     vapidKey: '/push-subscriptions/vapid-key',
   },
+  admin: {
+    pricingZones: '/admin/pricing/zones',
+  },
 } as const;
 
 export type ApiEndpoints = typeof apiEndpoints;

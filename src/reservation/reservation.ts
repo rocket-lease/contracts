@@ -49,6 +49,7 @@ export const CreateReservationRequestSchema = z
     deliveryAddress: ReservationAddressSchema.optional(),
     withHomeReturn: z.boolean().optional().default(false),
     returnAddress: ReservationAddressSchema.optional(),
+    quoteToken: z.string().uuid().optional(),
   })
   .refine((d) => new Date(d.endAt).getTime() > new Date(d.startAt).getTime(), {
     message: 'endAt must be after startAt',
