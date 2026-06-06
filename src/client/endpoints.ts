@@ -42,6 +42,10 @@ export const apiEndpoints = {
     unregister: '/push-subscriptions',
     vapidKey: '/push-subscriptions/vapid-key',
   },
+  dashboard: {
+    metrics: '/dashboard/metrics',
+    vehicleMetrics: (id: string) => `/dashboard/vehicles/${id}/metrics`,
+  },
 } as const;
 
 export type ApiEndpoints = typeof apiEndpoints;
