@@ -4,6 +4,9 @@ export const TicketStatusSchema = z.enum(['open', 'under_review', 'resolved', 'r
 export type TicketStatus = z.infer<typeof TicketStatusSchema>;
 export const TICKET_STATUS = TicketStatusSchema.enum;
 
+export const TicketResolutionSchema = z.enum(['in_favor', 'against']);
+export type TicketResolution = z.infer<typeof TicketResolutionSchema>;
+
 export const TicketReportedBySchema = z.enum(['conductor', 'rentador']);
 export type TicketReportedBy = z.infer<typeof TicketReportedBySchema>;
 
@@ -25,6 +28,7 @@ export const TicketResponseSchema = z.object({
   type: TicketTypeSchema,
   reportedBy: TicketReportedBySchema,
   status: TicketStatusSchema,
+  resolution: TicketResolutionSchema.nullable(),
   description: z.string(),
   photoUrls: z.array(z.string()),
   createdAt: z.string().datetime(),

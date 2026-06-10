@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const CreateReviewRequestSchema = z.object({
   targetType: z.enum(['vehicle', 'rentador', 'conductor']),
   rating: z.number().int().min(1).max(5),
+  vehicleRating: z.number().int().min(1).max(5).optional(),
   comment: z.string().max(500),
 });
 export type CreateReviewRequest = z.infer<typeof CreateReviewRequestSchema>;
@@ -13,6 +14,7 @@ export const ReviewItemSchema = z.object({
   reviewerName: z.string(),
   targetType: z.enum(['vehicle', 'rentador', 'conductor']),
   rating: z.number().int().min(1).max(5),
+  vehicleRating: z.number().int().min(1).max(5).nullable(),
   comment: z.string(),
   createdAt: z.string().datetime(),
 });

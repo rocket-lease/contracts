@@ -67,6 +67,8 @@ export const ErrorCodes = {
   // Review errors (US-38)
   REVIEW_ALREADY_EXISTS: 'REVIEW_ALREADY_EXISTS',
   RESERVATION_NOT_COMPLETED: 'RESERVATION_NOT_COMPLETED',
+  // Reputation errors
+  USER_SUSPENDED: 'USER_SUSPENDED',
 } as const;
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];

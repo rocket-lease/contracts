@@ -35,7 +35,6 @@ export const GetMyProfileResponseSchema = z.object({
   identityVerification: IdentityVerificationSummarySchema,
   driverLicenseVerification: DriverLicenseVerificationSummarySchema,
   level: UserLevelSchema,
-  reputationScore: z.number().min(0).max(5),
   balanceInCents: z.number().int().nonnegative(),
   preferences: VehiclePreferencesSchema,
   autoAccept: z.boolean(),

@@ -49,6 +49,9 @@ export const apiEndpoints = {
     metrics: '/dashboard/metrics',
     vehicleMetrics: (id: string) => `/dashboard/vehicles/${id}/metrics`,
   },
+  reputation: {
+    user: (userId: string) => `/reputation/${userId}`,
+  },
 } as const;
 
 export type ApiEndpoints = typeof apiEndpoints;
