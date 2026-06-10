@@ -45,6 +45,14 @@ export const apiEndpoints = {
     unregister: '/push-subscriptions',
     vapidKey: '/push-subscriptions/vapid-key',
   },
+  admin: {
+    pricingZones: '/admin/pricing/zones',
+    pricingDebugEmit: '/admin/pricing/debug/emit',
+    pricingDebugClear: '/admin/pricing/debug',
+  },
+  geo: {
+    vehicleView: '/geo/vehicle-view',
+  },
   dashboard: {
     metrics: '/dashboard/metrics',
     vehicleMetrics: (id: string) => `/dashboard/vehicles/${id}/metrics`,

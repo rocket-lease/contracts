@@ -105,4 +105,73 @@ describe('PricingQuoteSchema', () => {
 
     expect(quote.appliedDiscountTier).toBeNull();
   });
+
+  it('parses a quote with dynamic pricing fields', () => {
+    const quote = PricingQuoteSchema.parse({
+      vehicleId: validUuid,
+      currency: 'ARS',
+      basePriceCents: 10000,
+      durationDays: 2,
+      subtotalCents: 26000,
+      appliedDiscountTier: null,
+      appliedDiscountPercentage: 0,
+      discountCents: 0,
+      totalCents: 26000,
+      multiplier: 1.3,
+      deliveryFeeCents: 0,
+      quoteToken: validUuid,
+      expiresAt: '2026-06-04T20:05:00.000Z',
+    });
+
+    expect(quote.multiplier).toBe(1.3);
+    expect(quote.quoteToken).toBe(validUuid);
+  });
+
+  it('rejects multiplier above 2.0', () => {
+    expect(() =>
+      PricingQuoteSchema.parse({
+        vehicleId: validUuid,
+        currency: 'ARS',
+        basePriceCents: 10000,
+        durationDays: 2,
+        subtotalCents: 20000,
+        appliedDiscountTier: null,
+        appliedDiscountPercentage: 0,
+        discountCents: 0,
+        totalCents: 20000,
+        multiplier: 2.5,
+      }),
+    ).toThrow();
+  });
+
+  it('rejects multiplier below 0.7', () => {
+    expect(() =>
+      PricingQuoteSchema.parse({
+        vehicleId: validUuid,
+        currency: 'ARS',
+        basePriceCents: 10000,
+        durationDays: 2,
+        subtotalCents: 20000,
+        appliedDiscountTier: null,
+        appliedDiscountPercentage: 0,
+        discountCents: 0,
+        totalCents: 20000,
+        multiplier: 0.5,
+      }),
+    ).toThrow();
+  });
+});
+
+describe('PricingQuoteRequestSchema — dynamic pricing extensions', () => {
+  it('accepts withHomeDelivery / withHomeReturn flags', () => {
+    const request = PricingQuoteRequestSchema.parse({
+      vehicleId: validUuid,
+      startAt: '2026-06-01T10:00:00.000Z',
+      endAt: '2026-06-08T10:00:00.000Z',
+      withHomeDelivery: true,
+      withHomeReturn: false,
+    });
+    expect(request.withHomeDelivery).toBe(true);
+    expect(request.withHomeReturn).toBe(false);
+  });
 });

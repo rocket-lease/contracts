@@ -8,6 +8,7 @@ import {
     MapMarkerSchema,
     MapSearchResponseSchema,
     RentadoraMarkerDetailSchema,
+    GeoLocationsResponseSchema,
 } from '../../src/geo/geo';
 
 const validUuid = '018f8b3c-4d0e-7000-8000-000000000001';
@@ -72,11 +73,38 @@ describe('MapSearchRequestSchema', () => {
         const r = MapSearchRequestSchema.parse({
             bounds,
             zoom: 10,
+            locationCode: 'caba-palermo',
             transmission: 'Automatico',
             characteristics: ['GPS'],
             isAccessible: true,
         });
         expect(r.transmission).toBe('Automatico');
+        expect(r.locationCode).toBe('caba-palermo');
+    });
+});
+
+describe('GeoLocationsResponseSchema', () => {
+    it('parsea opciones jerarquicas', () => {
+        const r = GeoLocationsResponseSchema.parse({
+            locations: [
+                {
+                    code: 'caba',
+                    name: 'CABA',
+                    type: 'city',
+                    city: 'CABA',
+                    children: [
+                        {
+                            code: 'caba-palermo',
+                            name: 'Palermo',
+                            type: 'neighborhood',
+                            parentCode: 'caba',
+                            city: 'CABA',
+                        },
+                    ],
+                },
+            ],
+        });
+        expect(r.locations[0]?.children?.[0]?.code).toBe('caba-palermo');
     });
 });
 
