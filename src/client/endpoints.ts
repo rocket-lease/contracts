@@ -50,6 +50,10 @@ export const apiEndpoints = {
   geo: {
     vehicleView: '/geo/vehicle-view',
   },
+  dashboard: {
+    metrics: '/dashboard/metrics',
+    vehicleMetrics: (id: string) => `/dashboard/vehicles/${id}/metrics`,
+  },
 } as const;
 
 export type ApiEndpoints = typeof apiEndpoints;

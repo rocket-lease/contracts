@@ -30,3 +30,4 @@ export * from './schemas/review.schema';
 export * from './ticket/ticket';
 export * from './admin/pricing-zones';
 export * from './admin/pricing-debug';
+export * from './dashboard/dashboard';
