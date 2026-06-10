@@ -6,6 +6,8 @@ import {
   CreateTicketRequestSchema,
   TicketResponseSchema,
   GetMyTicketsResponseSchema,
+  RateTicketRequestSchema,
+  UpdateTicketStatusRequestSchema,
   TicketResolutionSchema,
   TICKET_STATUS,
   TICKET_TYPE,
@@ -36,9 +38,10 @@ describe('TicketStatusSchema', () => {
 });
 
 describe('TicketTypeSchema', () => {
-  it('accepts vehicle_issue and counterpart_report', () => {
+  it('accepts vehicle_issue, counterpart_report and support_request', () => {
     expect(TicketTypeSchema.parse('vehicle_issue')).toBe('vehicle_issue');
     expect(TicketTypeSchema.parse('counterpart_report')).toBe('counterpart_report');
+    expect(TicketTypeSchema.parse('support_request')).toBe('support_request');
   });
 
   it('rejects unknown type', () => {
@@ -49,6 +52,7 @@ describe('TicketTypeSchema', () => {
   it('TICKET_TYPE exposes enum values', () => {
     expect(TICKET_TYPE.vehicle_issue).toBe('vehicle_issue');
     expect(TICKET_TYPE.counterpart_report).toBe('counterpart_report');
+    expect(TICKET_TYPE.support_request).toBe('support_request');
   });
 });
 
@@ -79,6 +83,7 @@ describe('CreateTicketRequestSchema', () => {
   const valid = {
     reservationId: validUuid,
     type: 'vehicle_issue' as const,
+    subject: 'Goma pinchada',
     description: 'Goma pinchada al retirar el vehículo',
     photoUrls: [],
   };
@@ -86,6 +91,7 @@ describe('CreateTicketRequestSchema', () => {
   it('parses a valid request without photos', () => {
     const result = CreateTicketRequestSchema.parse(valid);
     expect(result.reservationId).toBe(validUuid);
+    expect(result.subject).toBe('Goma pinchada');
     expect(result.photoUrls).toEqual([]);
   });
 
@@ -101,9 +107,20 @@ describe('CreateTicketRequestSchema', () => {
     const result = CreateTicketRequestSchema.parse({
       reservationId: validUuid,
       type: 'counterpart_report',
+      subject: 'Problema con el freno',
       description: 'Problema con el freno',
     });
     expect(result.photoUrls).toEqual([]);
+  });
+
+  it('parses a support_request without reservationId', () => {
+    const result = CreateTicketRequestSchema.parse({
+      type: 'support_request',
+      subject: 'No puedo verificar mi DNI',
+      description: 'El sistema rechaza la foto de mi documento',
+    });
+    expect(result.reservationId).toBeUndefined();
+    expect(result.type).toBe('support_request');
   });
 
   it('rejects if type is missing', () => {
@@ -118,6 +135,16 @@ describe('CreateTicketRequestSchema', () => {
   it('rejects if reservationId is not a UUID', () => {
     expect(
       CreateTicketRequestSchema.safeParse({ ...valid, reservationId: 'not-a-uuid' }).success,
+    ).toBe(false);
+  });
+
+  it('rejects if subject is empty', () => {
+    expect(CreateTicketRequestSchema.safeParse({ ...valid, subject: '' }).success).toBe(false);
+  });
+
+  it('rejects if subject exceeds 120 chars', () => {
+    expect(
+      CreateTicketRequestSchema.safeParse({ ...valid, subject: 'x'.repeat(121) }).success,
     ).toBe(false);
   });
 
@@ -156,10 +183,15 @@ describe('TicketResponseSchema', () => {
     reservationId: validUuid2,
     type: 'vehicle_issue',
     reportedBy: 'conductor',
+    reporterId: 'user-abc',
+    conductorId: null,
+    rentadorId: null,
     status: 'open',
+    subject: 'Goma pinchada',
     resolution: null,
     description: 'Goma pinchada',
     photoUrls: [],
+    rating: null,
     createdAt: validDatetime,
     updatedAt: validDatetime,
   };
@@ -169,7 +201,28 @@ describe('TicketResponseSchema', () => {
     expect(result.id).toBe(validUuid);
     expect(result.status).toBe('open');
     expect(result.reportedBy).toBe('conductor');
-    expect(result.resolution).toBeNull();
+    expect(result.rating).toBeNull();
+  });
+
+  it('parses a support_request response with null reservationId/reportedBy', () => {
+    const result = TicketResponseSchema.parse({
+      ...valid,
+      type: 'support_request',
+      reservationId: null,
+      reportedBy: null,
+    });
+    expect(result.reservationId).toBeNull();
+    expect(result.reportedBy).toBeNull();
+  });
+
+  it('parses a response with rating set', () => {
+    const result = TicketResponseSchema.parse({ ...valid, status: 'resolved', rating: 5 });
+    expect(result.rating).toBe(5);
+  });
+
+  it('rejects if rating is out of range', () => {
+    expect(TicketResponseSchema.safeParse({ ...valid, rating: 6 }).success).toBe(false);
+    expect(TicketResponseSchema.safeParse({ ...valid, rating: 0 }).success).toBe(false);
   });
 
   it('parses a resolved ticket', () => {
@@ -194,6 +247,11 @@ describe('TicketResponseSchema', () => {
     expect(TicketResponseSchema.safeParse({ ...valid, reportedBy: 'admin' }).success).toBe(false);
   });
 
+  it('rejects if subject is missing', () => {
+    const { subject: _, ...noSubject } = valid;
+    expect(TicketResponseSchema.safeParse(noSubject).success).toBe(false);
+  });
+
   it('rejects if createdAt is not datetime', () => {
     expect(
       TicketResponseSchema.safeParse({ ...valid, createdAt: '2026-06-01' }).success,
@@ -213,10 +271,15 @@ describe('GetMyTicketsResponseSchema', () => {
         reservationId: validUuid2,
         type: 'counterpart_report',
         reportedBy: 'rentador',
+        reporterId: 'user-abc',
+        conductorId: null,
+        rentadorId: null,
         status: 'under_review',
+        subject: 'Rayón en la puerta',
         resolution: null,
         description: 'Rayón en la puerta',
         photoUrls: ['https://res.cloudinary.com/foo/image/upload/v1/ticket-photos/abc.jpg'],
+        rating: null,
         createdAt: validDatetime,
         updatedAt: validDatetime,
       },
@@ -229,6 +292,52 @@ describe('GetMyTicketsResponseSchema', () => {
   it('rejects if any element is invalid', () => {
     expect(
       GetMyTicketsResponseSchema.safeParse([{ id: 'bad' }]).success,
+    ).toBe(false);
+  });
+});
+
+describe('RateTicketRequestSchema', () => {
+  it('accepts ratings between 1 and 5', () => {
+    for (const rating of [1, 2, 3, 4, 5]) {
+      expect(RateTicketRequestSchema.parse({ rating }).rating).toBe(rating);
+    }
+  });
+
+  it('rejects ratings out of range', () => {
+    expect(RateTicketRequestSchema.safeParse({ rating: 0 }).success).toBe(false);
+    expect(RateTicketRequestSchema.safeParse({ rating: 6 }).success).toBe(false);
+  });
+
+  it('rejects non-integer ratings', () => {
+    expect(RateTicketRequestSchema.safeParse({ rating: 3.5 }).success).toBe(false);
+  });
+});
+
+describe('UpdateTicketStatusRequestSchema', () => {
+  it('parses a status change without compensation', () => {
+    const result = UpdateTicketStatusRequestSchema.parse({ status: 'resolved' });
+    expect(result.status).toBe('resolved');
+    expect(result.compensation).toBeUndefined();
+  });
+
+  it('parses a status change with compensation', () => {
+    const result = UpdateTicketStatusRequestSchema.parse({
+      status: 'resolved',
+      compensation: { responsibleUserId: validUuid, amountCents: 150000 },
+    });
+    expect(result.compensation?.amountCents).toBe(150000);
+  });
+
+  it('rejects an invalid status', () => {
+    expect(UpdateTicketStatusRequestSchema.safeParse({ status: 'open' }).success).toBe(false);
+  });
+
+  it('rejects compensation with non-positive amountCents', () => {
+    expect(
+      UpdateTicketStatusRequestSchema.safeParse({
+        status: 'resolved',
+        compensation: { responsibleUserId: validUuid, amountCents: 0 },
+      }).success,
     ).toBe(false);
   });
 });

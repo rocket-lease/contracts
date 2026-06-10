@@ -10,13 +10,14 @@ export type TicketResolution = z.infer<typeof TicketResolutionSchema>;
 export const TicketReportedBySchema = z.enum(['conductor', 'rentador']);
 export type TicketReportedBy = z.infer<typeof TicketReportedBySchema>;
 
-export const TicketTypeSchema = z.enum(['vehicle_issue', 'counterpart_report']);
+export const TicketTypeSchema = z.enum(['vehicle_issue', 'counterpart_report', 'support_request']);
 export type TicketType = z.infer<typeof TicketTypeSchema>;
 export const TICKET_TYPE = TicketTypeSchema.enum;
 
 export const CreateTicketRequestSchema = z.object({
-  reservationId: z.string().uuid(),
+  reservationId: z.string().uuid().optional(),
   type: TicketTypeSchema,
+  subject: z.string().trim().min(1).max(120),
   description: z.string().min(1).max(1000),
   photoUrls: z.array(z.string().url()).max(5).default([]),
 });
@@ -24,13 +25,18 @@ export type CreateTicketRequest = z.infer<typeof CreateTicketRequestSchema>;
 
 export const TicketResponseSchema = z.object({
   id: z.string().uuid(),
-  reservationId: z.string().uuid(),
+  reservationId: z.string().uuid().nullable(),
   type: TicketTypeSchema,
-  reportedBy: TicketReportedBySchema,
+  reportedBy: TicketReportedBySchema.nullable(),
+  reporterId: z.string().min(1),
+  conductorId: z.string().uuid().nullable(),
+  rentadorId: z.string().uuid().nullable(),
   status: TicketStatusSchema,
+  subject: z.string(),
   resolution: TicketResolutionSchema.nullable(),
   description: z.string(),
   photoUrls: z.array(z.string()),
+  rating: z.number().int().min(1).max(5).nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
@@ -44,3 +50,23 @@ export type GetReservationTicketsResponse = z.infer<typeof GetReservationTickets
 
 export const GetTicketsAgainstMeResponseSchema = z.array(TicketResponseSchema);
 export type GetTicketsAgainstMeResponse = z.infer<typeof GetTicketsAgainstMeResponseSchema>;
+
+export const GetAdminTicketsResponseSchema = z.array(TicketResponseSchema);
+export type GetAdminTicketsResponse = z.infer<typeof GetAdminTicketsResponseSchema>;
+
+export const RateTicketRequestSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+});
+export type RateTicketRequest = z.infer<typeof RateTicketRequestSchema>;
+
+export const TicketCompensationSchema = z.object({
+  responsibleUserId: z.string().uuid(),
+  amountCents: z.number().int().positive(),
+});
+export type TicketCompensation = z.infer<typeof TicketCompensationSchema>;
+
+export const UpdateTicketStatusRequestSchema = z.object({
+  status: z.enum(['under_review', 'resolved', 'rejected']),
+  compensation: TicketCompensationSchema.optional(),
+});
+export type UpdateTicketStatusRequest = z.infer<typeof UpdateTicketStatusRequestSchema>;

@@ -29,9 +29,9 @@ export const apiEndpoints = {
   reviews: {
     mine: '/reviews/rentador/mine',
     conductorMine: '/reviews/conductor/mine',
-    create: (reservationId: string) => `/reservations/${reservationId}/review`,
     vehicle: (vehicleId: string) => `/reviews/vehicle/${vehicleId}`,
     user: (userId: string) => `/reviews/user/${userId}`,
+    create: (reservationId: string) => `/reservations/${reservationId}/review`,
   },
   vehicles: {
     list: '/vehicle',
