@@ -262,7 +262,7 @@ export const GetReservationResponseSchema = z.object({
   updatedAt: z.string().datetime(),
   vehicle: ReservationVehicleSummarySchema,
   rentador: UserPublicSummarySchema,
-  review: ReviewItemSchema.nullable().optional(),
+  reviews: z.array(ReviewItemSchema),
 });
 export type GetReservationResponse = z.infer<
   typeof GetReservationResponseSchema

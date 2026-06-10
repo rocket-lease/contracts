@@ -28,7 +28,10 @@ export const apiEndpoints = {
   },
   reviews: {
     mine: '/reviews/rentador/mine',
+    conductorMine: '/reviews/conductor/mine',
     create: (reservationId: string) => `/reservations/${reservationId}/review`,
+    vehicle: (vehicleId: string) => `/reviews/vehicle/${vehicleId}`,
+    user: (userId: string) => `/reviews/user/${userId}`,
   },
   vehicles: {
     list: '/vehicle',
@@ -45,6 +48,9 @@ export const apiEndpoints = {
   dashboard: {
     metrics: '/dashboard/metrics',
     vehicleMetrics: (id: string) => `/dashboard/vehicles/${id}/metrics`,
+  },
+  reputation: {
+    user: (userId: string) => `/reputation/${userId}`,
   },
 } as const;
 

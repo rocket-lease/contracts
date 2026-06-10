@@ -8,6 +8,7 @@ import {
   GetMyTicketsResponseSchema,
   RateTicketRequestSchema,
   UpdateTicketStatusRequestSchema,
+  TicketResolutionSchema,
   TICKET_STATUS,
   TICKET_TYPE,
 } from '../../src/ticket/ticket';
@@ -64,6 +65,17 @@ describe('TicketReportedBySchema', () => {
   it('rejects other values', () => {
     expect(TicketReportedBySchema.safeParse('admin').success).toBe(false);
     expect(TicketReportedBySchema.safeParse('').success).toBe(false);
+  });
+});
+
+describe('TicketResolutionSchema', () => {
+  it('accepts in_favor and against', () => {
+    expect(TicketResolutionSchema.parse('in_favor')).toBe('in_favor');
+    expect(TicketResolutionSchema.parse('against')).toBe('against');
+  });
+
+  it('rejects other values', () => {
+    expect(TicketResolutionSchema.safeParse('other').success).toBe(false);
   });
 });
 
@@ -174,6 +186,7 @@ describe('TicketResponseSchema', () => {
     reporterId: 'user-abc',
     status: 'open',
     subject: 'Goma pinchada',
+    resolution: null,
     description: 'Goma pinchada',
     photoUrls: [],
     rating: null,
@@ -208,6 +221,13 @@ describe('TicketResponseSchema', () => {
   it('rejects if rating is out of range', () => {
     expect(TicketResponseSchema.safeParse({ ...valid, rating: 6 }).success).toBe(false);
     expect(TicketResponseSchema.safeParse({ ...valid, rating: 0 }).success).toBe(false);
+    expect(result.resolution).toBeNull();
+  });
+
+  it('parses a resolved ticket', () => {
+    const resolved = { ...valid, status: 'resolved', resolution: 'against' };
+    const result = TicketResponseSchema.parse(resolved);
+    expect(result.resolution).toBe('against');
   });
 
   it('rejects if id is not a UUID', () => {
@@ -253,6 +273,7 @@ describe('GetMyTicketsResponseSchema', () => {
         reporterId: 'user-abc',
         status: 'under_review',
         subject: 'Rayón en la puerta',
+        resolution: null,
         description: 'Rayón en la puerta',
         photoUrls: ['https://res.cloudinary.com/foo/image/upload/v1/ticket-photos/abc.jpg'],
         rating: null,
