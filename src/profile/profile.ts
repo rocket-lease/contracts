@@ -39,6 +39,7 @@ export const GetMyProfileResponseSchema = z.object({
   balanceInCents: z.number().int().nonnegative(),
   preferences: VehiclePreferencesSchema,
   autoAccept: z.boolean(),
+  isAdmin: z.boolean().optional(),
 });
 export type GetMyProfileResponse = z.infer<typeof GetMyProfileResponseSchema>;
 export const GetUserProfileResponseSchema = GetMyProfileResponseSchema;
