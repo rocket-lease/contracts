@@ -22,6 +22,41 @@ export const MapBoundsSchema = z
     });
 export type MapBounds = z.infer<typeof MapBoundsSchema>;
 
+export const GeoLocationTypeSchema = z.enum([
+    'province',
+    'city',
+    'locality',
+    'neighborhood',
+]);
+export type GeoLocationType = z.infer<typeof GeoLocationTypeSchema>;
+
+export type GeoLocationOption = {
+    code: string;
+    name: string;
+    type: GeoLocationType;
+    parentCode?: string | undefined;
+    city?: string | undefined;
+    center?: Coordinates | undefined;
+    children?: GeoLocationOption[] | undefined;
+};
+
+export const GeoLocationOptionSchema: z.ZodType<GeoLocationOption> = z.lazy(() =>
+    z.object({
+        code: z.string().min(1),
+        name: z.string().min(1),
+        type: GeoLocationTypeSchema,
+        parentCode: z.string().min(1).optional(),
+        city: z.string().min(1).optional(),
+        center: CoordinatesSchema.optional(),
+        children: z.array(GeoLocationOptionSchema).optional(),
+    }),
+);
+
+export const GeoLocationsResponseSchema = z.object({
+    locations: z.array(GeoLocationOptionSchema),
+});
+export type GeoLocationsResponse = z.infer<typeof GeoLocationsResponseSchema>;
+
 /**
  * Búsqueda de rentadoras para el mapa. Acepta viewport (`bounds`) XOR
  * "Cerca de mí" (`center` + `radiusKm`). El `zoom` define el nivel de
@@ -32,6 +67,7 @@ export const MapSearchRequestSchema = z
         bounds: MapBoundsSchema.optional(),
         center: CoordinatesSchema.optional(),
         radiusKm: z.number().positive().max(500).optional(),
+        locationCode: z.string().min(1).optional(),
         zoom: z.number().int().min(0).max(22),
         transmission: TransmissionSchema.optional(),
         maxPriceDaily: z.number().int().positive().optional(),
@@ -92,6 +128,19 @@ export const MapSearchResponseSchema = z.object({
     markers: z.array(MapMarkerSchema),
 });
 export type MapSearchResponse = z.infer<typeof MapSearchResponseSchema>;
+
+export const SearchSignalSchema = z.enum([
+    'search',
+    'vehicleView',
+    'quote',
+    'reservation',
+]);
+export type SearchSignal = z.infer<typeof SearchSignalSchema>;
+
+export const LogVehicleViewRequestSchema = z.object({
+    vehicleId: z.string().uuid(),
+});
+export type LogVehicleViewRequest = z.infer<typeof LogVehicleViewRequestSchema>;
 
 export const MapVehiclePreviewSchema = z.object({
     id: z.string().uuid(),

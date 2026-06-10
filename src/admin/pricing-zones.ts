@@ -10,7 +10,7 @@ export const AdminPricingZoneSchema = z.object({
   h3Cell: z.string().min(1),
   geometry: GeoJsonPolygonSchema,
   supplyCount: z.number().int().nonnegative(),
-  demandCount: z.number().int().nonnegative(),
+  demandCount: z.number().nonnegative(),
   ratio: z.number().nonnegative(),
   avgMultiplier: z.number().min(0.7).max(2.0),
   vehicleSampleIds: z.array(z.string().uuid()).max(10),

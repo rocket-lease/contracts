@@ -129,6 +129,7 @@ export const GetVehicleResponseSchema = z.object({
     homeReturnEnabled: z.boolean(),
     homeReturnFeeCents: z.number().int().nonnegative().nullable(),
     dynamicPricingEnabled: z.boolean().default(false),
+    demandMultiplier: z.number().min(1).max(2).default(1),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 

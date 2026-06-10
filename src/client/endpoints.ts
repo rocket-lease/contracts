@@ -44,6 +44,11 @@ export const apiEndpoints = {
   },
   admin: {
     pricingZones: '/admin/pricing/zones',
+    pricingDebugEmit: '/admin/pricing/debug/emit',
+    pricingDebugClear: '/admin/pricing/debug',
+  },
+  geo: {
+    vehicleView: '/geo/vehicle-view',
   },
 } as const;
 
