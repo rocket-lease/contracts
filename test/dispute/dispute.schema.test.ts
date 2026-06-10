@@ -50,17 +50,25 @@ describe('PenaltyTypeSchema', () => {
 
 describe('RequestDisputeInfoRequestSchema', () => {
   it('parsea un mensaje válido', () => {
-    const result = RequestDisputeInfoRequestSchema.parse({ message: 'Necesitamos más fotos' });
+    const result = RequestDisputeInfoRequestSchema.parse({
+      targetParticipantId: validUuid,
+      message: 'Necesitamos más fotos',
+    });
     expect(result.message).toBe('Necesitamos más fotos');
   });
 
   it('rechaza mensaje vacío', () => {
-    expect(RequestDisputeInfoRequestSchema.safeParse({ message: '' }).success).toBe(false);
+    expect(
+      RequestDisputeInfoRequestSchema.safeParse({ targetParticipantId: validUuid, message: '' }).success,
+    ).toBe(false);
   });
 
   it('rechaza mensaje de más de 1000 caracteres', () => {
     expect(
-      RequestDisputeInfoRequestSchema.safeParse({ message: 'x'.repeat(1001) }).success,
+      RequestDisputeInfoRequestSchema.safeParse({
+        targetParticipantId: validUuid,
+        message: 'x'.repeat(1001),
+      }).success,
     ).toBe(false);
   });
 });
@@ -158,6 +166,8 @@ describe('DisputeResolutionResponseSchema', () => {
     ticketId: validUuid2,
     status: 'escalated',
     moderatorId: null,
+    conductorId: validUuid,
+    rentadorId: validUuid2,
     infoRequestedAt: null,
     infoDeadlineAt: null,
     verdict: null,

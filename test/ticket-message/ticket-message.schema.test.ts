@@ -9,6 +9,8 @@ const validMessage = {
   id: '00000000-0000-0000-0000-000000000001',
   ticketId: '00000000-0000-0000-0000-000000000002',
   senderId: 'user-abc',
+  channelParticipantId: '00000000-0000-0000-0000-000000000003',
+  messageType: 'user' as const,
   body: '¿Podrían darme una actualización sobre mi ticket?',
   sentAt: '2026-05-24T10:00:00.000Z',
 };
