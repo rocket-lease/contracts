@@ -28,6 +28,9 @@ export const apiEndpoints = {
   },
   reviews: {
     mine: '/reviews/rentador/mine',
+    conductorMine: '/reviews/conductor/mine',
+    vehicle: (vehicleId: string) => `/reviews/vehicle/${vehicleId}`,
+    user: (userId: string) => `/reviews/user/${userId}`,
     create: (reservationId: string) => `/reservations/${reservationId}/review`,
   },
   vehicles: {
@@ -41,6 +44,21 @@ export const apiEndpoints = {
     register: '/push-subscriptions',
     unregister: '/push-subscriptions',
     vapidKey: '/push-subscriptions/vapid-key',
+  },
+  admin: {
+    pricingZones: '/admin/pricing/zones',
+    pricingDebugEmit: '/admin/pricing/debug/emit',
+    pricingDebugClear: '/admin/pricing/debug',
+  },
+  geo: {
+    vehicleView: '/geo/vehicle-view',
+  },
+  dashboard: {
+    metrics: '/dashboard/metrics',
+    vehicleMetrics: (id: string) => `/dashboard/vehicles/${id}/metrics`,
+  },
+  reputation: {
+    user: (userId: string) => `/reputation/${userId}`,
   },
 } as const;
 

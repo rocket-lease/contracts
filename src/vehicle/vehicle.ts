@@ -73,6 +73,7 @@ export const UpdateVehicleRequestSchema = CreateVehicleRequestSchema.partial().o
     homeDeliveryFeeCents: z.number().int().nonnegative().nullable().optional(),
     homeReturnEnabled: z.boolean().optional(),
     homeReturnFeeCents: z.number().int().nonnegative().nullable().optional(),
+    dynamicPricingEnabled: z.boolean().optional(),
 }).strict();
 export type UpdateVehicleRequest = z.infer<typeof UpdateVehicleRequestSchema>;
 
@@ -127,6 +128,8 @@ export const GetVehicleResponseSchema = z.object({
     homeDeliveryFeeCents: z.number().int().nonnegative().nullable(),
     homeReturnEnabled: z.boolean(),
     homeReturnFeeCents: z.number().int().nonnegative().nullable(),
+    dynamicPricingEnabled: z.boolean().default(false),
+    demandMultiplier: z.number().min(1).max(2).default(1),
 });
 export type GetVehicleResponse = z.infer<typeof GetVehicleResponseSchema>;
 

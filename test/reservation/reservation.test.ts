@@ -486,6 +486,7 @@ describe('GetReservationResponseSchema', () => {
     withHomeReturn: false,
     homeReturnFeeCentsSnapshot: null,
     returnAddress: null,
+    reviews: [],
   };
 
   it('parses a valid response', () => {
@@ -916,6 +917,7 @@ describe('GetReservationResponseSchema (extension fields)', () => {
     withHomeReturn: false,
     homeReturnFeeCentsSnapshot: null,
     returnAddress: null,
+    reviews: [],
   };
 
   it('acepta parentReservationId y chain ausentes (reserva sin extensiones)', () => {
