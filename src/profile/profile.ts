@@ -35,11 +35,11 @@ export const GetMyProfileResponseSchema = z.object({
   identityVerification: IdentityVerificationSummarySchema,
   driverLicenseVerification: DriverLicenseVerificationSummarySchema,
   level: UserLevelSchema,
+  isAdmin: z.boolean().optional(),
   reputationScore: z.number().min(0).max(5),
   balanceInCents: z.number().int().nonnegative(),
   preferences: VehiclePreferencesSchema,
   autoAccept: z.boolean(),
-  isAdmin: z.boolean().optional(),
 });
 export type GetMyProfileResponse = z.infer<typeof GetMyProfileResponseSchema>;
 export const GetUserProfileResponseSchema = GetMyProfileResponseSchema;

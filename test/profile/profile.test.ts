@@ -33,7 +33,11 @@ describe('GetMyProfileResponseSchema', () => {
         verifiedAt: null,
       },
       level: 'silver',
+      isAdmin: false,
       reputationScore: 4.8,
+      reviewCount: 15,
+      badges: [],
+      isLowReputation: false,
       balanceInCents: 1250000,
       preferences: {
         transmission: null,
@@ -44,7 +48,7 @@ describe('GetMyProfileResponseSchema', () => {
     });
 
     expect(profile.balanceInCents).toBe(1250000);
-    expect(profile.isAdmin).toBeUndefined();
+    expect(profile.isAdmin).toBe(false);
   });
 
   it('accepts the admin flag when present', () => {
