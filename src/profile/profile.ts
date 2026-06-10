@@ -4,7 +4,6 @@ import {
   IdentityVerificationSummarySchema,
 } from '../identity/identity-verification';
 import { DriverLicenseVerificationSummarySchema } from '../driver-license/driver-license-verification';
-import { ReputationBadgeSchema } from '../reputation/reputation';
 
 export const ProfileVerificationStatusSchema = IdentityVerificationStatusSchema;
 export type ProfileVerificationStatus = z.infer<typeof ProfileVerificationStatusSchema>;
