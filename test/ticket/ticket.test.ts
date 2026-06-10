@@ -221,7 +221,6 @@ describe('TicketResponseSchema', () => {
   it('rejects if rating is out of range', () => {
     expect(TicketResponseSchema.safeParse({ ...valid, rating: 6 }).success).toBe(false);
     expect(TicketResponseSchema.safeParse({ ...valid, rating: 0 }).success).toBe(false);
-    expect(result.resolution).toBeNull();
   });
 
   it('parses a resolved ticket', () => {
