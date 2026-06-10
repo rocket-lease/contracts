@@ -4,6 +4,7 @@ import {
   IdentityVerificationSummarySchema,
 } from '../identity/identity-verification';
 import { DriverLicenseVerificationSummarySchema } from '../driver-license/driver-license-verification';
+import { ReputationBadgeSchema } from '../reputation/reputation';
 
 export const ProfileVerificationStatusSchema = IdentityVerificationStatusSchema;
 export type ProfileVerificationStatus = z.infer<typeof ProfileVerificationStatusSchema>;
@@ -36,6 +37,9 @@ export const GetMyProfileResponseSchema = z.object({
   driverLicenseVerification: DriverLicenseVerificationSummarySchema,
   level: UserLevelSchema,
   reputationScore: z.number().min(0).max(5),
+  reviewCount: z.number().int().nonnegative(),
+  badges: z.array(ReputationBadgeSchema),
+  isLowReputation: z.boolean(),
   balanceInCents: z.number().int().nonnegative(),
   preferences: VehiclePreferencesSchema,
   autoAccept: z.boolean(),

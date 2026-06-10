@@ -6,6 +6,7 @@ import {
   CreateTicketRequestSchema,
   TicketResponseSchema,
   GetMyTicketsResponseSchema,
+  TicketResolutionSchema,
   TICKET_STATUS,
   TICKET_TYPE,
 } from '../../src/ticket/ticket';
@@ -60,6 +61,17 @@ describe('TicketReportedBySchema', () => {
   it('rejects other values', () => {
     expect(TicketReportedBySchema.safeParse('admin').success).toBe(false);
     expect(TicketReportedBySchema.safeParse('').success).toBe(false);
+  });
+});
+
+describe('TicketResolutionSchema', () => {
+  it('accepts in_favor and against', () => {
+    expect(TicketResolutionSchema.parse('in_favor')).toBe('in_favor');
+    expect(TicketResolutionSchema.parse('against')).toBe('against');
+  });
+
+  it('rejects other values', () => {
+    expect(TicketResolutionSchema.safeParse('other').success).toBe(false);
   });
 });
 
@@ -145,6 +157,7 @@ describe('TicketResponseSchema', () => {
     type: 'vehicle_issue',
     reportedBy: 'conductor',
     status: 'open',
+    resolution: null,
     description: 'Goma pinchada',
     photoUrls: [],
     createdAt: validDatetime,
@@ -156,6 +169,13 @@ describe('TicketResponseSchema', () => {
     expect(result.id).toBe(validUuid);
     expect(result.status).toBe('open');
     expect(result.reportedBy).toBe('conductor');
+    expect(result.resolution).toBeNull();
+  });
+
+  it('parses a resolved ticket', () => {
+    const resolved = { ...valid, status: 'resolved', resolution: 'against' };
+    const result = TicketResponseSchema.parse(resolved);
+    expect(result.resolution).toBe('against');
   });
 
   it('rejects if id is not a UUID', () => {
@@ -194,6 +214,7 @@ describe('GetMyTicketsResponseSchema', () => {
         type: 'counterpart_report',
         reportedBy: 'rentador',
         status: 'under_review',
+        resolution: null,
         description: 'Rayón en la puerta',
         photoUrls: ['https://res.cloudinary.com/foo/image/upload/v1/ticket-photos/abc.jpg'],
         createdAt: validDatetime,

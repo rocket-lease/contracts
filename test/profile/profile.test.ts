@@ -34,6 +34,9 @@ describe('GetMyProfileResponseSchema', () => {
       },
       level: 'silver',
       reputationScore: 4.8,
+      reviewCount: 15,
+      badges: [],
+      isLowReputation: false,
       balanceInCents: 1250000,
       preferences: {
         transmission: null,

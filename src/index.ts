@@ -29,3 +29,4 @@ export * from './schemas/push-subscription.schema';
 export * from './schemas/review.schema';
 export * from './ticket/ticket';
 export * from './dashboard/dashboard';
+export * from './reputation/reputation';
