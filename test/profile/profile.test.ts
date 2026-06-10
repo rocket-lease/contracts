@@ -33,6 +33,7 @@ describe('GetMyProfileResponseSchema', () => {
         verifiedAt: null,
       },
       level: 'silver',
+      isAdmin: false,
       reputationScore: 4.8,
       balanceInCents: 1250000,
       preferences: {

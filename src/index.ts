@@ -28,4 +28,6 @@ export * from './wallet/wallet';
 export * from './schemas/push-subscription.schema';
 export * from './schemas/review.schema';
 export * from './ticket/ticket';
+export * from './ticket-message/ticket-message.schema';
+export * from './dispute/dispute.schema';
 export * from './dashboard/dashboard';
