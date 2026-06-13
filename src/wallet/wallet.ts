@@ -9,8 +9,8 @@ export type WalletBalance = z.infer<typeof WalletBalanceSchema>;
 export const WalletTransactionTypeSchema = z.enum([
   'reservation_credit',
   'withdrawal_debit',
-  'dispute_penalty_debit',
-  'dispute_penalty_credit',
+  'ticket_resolution_credit',
+  'ticket_resolution_debit',
 ]);
 export type WalletTransactionType = z.infer<
   typeof WalletTransactionTypeSchema

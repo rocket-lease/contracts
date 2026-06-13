@@ -31,6 +31,5 @@ export * from './ticket/ticket';
 export * from './admin/pricing-zones';
 export * from './admin/pricing-debug';
 export * from './ticket-message/ticket-message.schema';
-export * from './dispute/dispute.schema';
 export * from './dashboard/dashboard';
 export * from './reputation/reputation';
