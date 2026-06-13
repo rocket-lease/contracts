@@ -85,6 +85,9 @@ export const ErrorCodes = {
   RESERVATION_NOT_COMPLETED: 'RESERVATION_NOT_COMPLETED',
   // Reputation errors
   USER_SUSPENDED: 'USER_SUSPENDED',
+  // Loyalty errors
+  LOYALTY_PROFILE_NOT_FOUND: 'LOYALTY_PROFILE_NOT_FOUND',
+  EXPERIENCE_TRANSACTION_ALREADY_EXISTS: 'EXPERIENCE_TRANSACTION_ALREADY_EXISTS',
 } as const;
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];

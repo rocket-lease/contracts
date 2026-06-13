@@ -34,3 +34,4 @@ export * from './ticket-message/ticket-message.schema';
 export * from './dispute/dispute.schema';
 export * from './dashboard/dashboard';
 export * from './reputation/reputation';
+export * from './loyalty/loyalty';

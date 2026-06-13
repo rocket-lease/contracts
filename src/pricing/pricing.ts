@@ -48,6 +48,7 @@ export const PricingQuoteSchema = z.object({
   deliveryFeeCents: z.number().int().nonnegative().optional(),
   quoteToken: z.string().uuid().optional(),
   expiresAt: z.string().datetime().optional(),
+  levelDiscountPercentage: z.number().int().min(0).max(50).optional(),
 });
 export type PricingQuote = z.infer<typeof PricingQuoteSchema>;
 
