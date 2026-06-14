@@ -42,6 +42,17 @@ export const GetMyProfileResponseSchema = z.object({
   autoAccept: z.boolean(),
 });
 export type GetMyProfileResponse = z.infer<typeof GetMyProfileResponseSchema>;
+
+export const GetPublicProfileResponseSchema = GetMyProfileResponseSchema.omit({
+  email: true,
+  phone: true,
+  balanceInCents: true,
+  preferences: true,
+  autoAccept: true,
+  isAdmin: true,
+});
+export type GetPublicProfileResponse = z.infer<typeof GetPublicProfileResponseSchema>;
+
 export const GetUserProfileResponseSchema = GetMyProfileResponseSchema;
 export type GetUserProfileResponse = z.infer<typeof GetUserProfileResponseSchema>;
 
