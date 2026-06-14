@@ -33,3 +33,4 @@ export * from './admin/pricing-debug';
 export * from './ticket-message/ticket-message.schema';
 export * from './dashboard/dashboard';
 export * from './reputation/reputation';
+export * from './loyalty/loyalty';
