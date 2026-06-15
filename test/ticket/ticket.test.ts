@@ -7,7 +7,7 @@ import {
   TicketResponseSchema,
   GetMyTicketsResponseSchema,
   RateTicketRequestSchema,
-  UpdateTicketStatusRequestSchema,
+  ResolveTicketRequestSchema,
   TicketResolutionSchema,
   TICKET_STATUS,
   TICKET_TYPE,
@@ -19,9 +19,13 @@ const validDatetime = '2026-06-01T12:00:00.000Z';
 
 describe('TicketStatusSchema', () => {
   it('accepts all valid statuses', () => {
-    for (const s of ['open', 'under_review', 'resolved', 'rejected']) {
+    for (const s of ['open', 'under_review', 'resolved', 'closed']) {
       expect(TicketStatusSchema.parse(s)).toBe(s);
     }
+  });
+
+  it('rejects rejected (deprecated status)', () => {
+    expect(TicketStatusSchema.safeParse('rejected').success).toBe(false);
   });
 
   it('rejects unknown status', () => {
@@ -33,7 +37,7 @@ describe('TicketStatusSchema', () => {
     expect(TICKET_STATUS.open).toBe('open');
     expect(TICKET_STATUS.under_review).toBe('under_review');
     expect(TICKET_STATUS.resolved).toBe('resolved');
-    expect(TICKET_STATUS.rejected).toBe('rejected');
+    expect(TICKET_STATUS.closed).toBe('closed');
   });
 });
 
@@ -220,6 +224,15 @@ describe('TicketResponseSchema', () => {
     expect(result.rating).toBe(5);
   });
 
+  it('accepts closed status', () => {
+    const result = TicketResponseSchema.parse({ ...valid, status: 'closed' });
+    expect(result.status).toBe('closed');
+  });
+
+  it('rejects rejected (deprecated) status', () => {
+    expect(TicketResponseSchema.safeParse({ ...valid, status: 'rejected' }).success).toBe(false);
+  });
+
   it('rejects if rating is out of range', () => {
     expect(TicketResponseSchema.safeParse({ ...valid, rating: 6 }).success).toBe(false);
     expect(TicketResponseSchema.safeParse({ ...valid, rating: 0 }).success).toBe(false);
@@ -313,31 +326,142 @@ describe('RateTicketRequestSchema', () => {
   });
 });
 
-describe('UpdateTicketStatusRequestSchema', () => {
-  it('parses a status change without compensation', () => {
-    const result = UpdateTicketStatusRequestSchema.parse({ status: 'resolved' });
-    expect(result.status).toBe('resolved');
-    expect(result.compensation).toBeUndefined();
+describe('ResolveTicketRequestSchema', () => {
+  it('parses a close resolution', () => {
+    const result = ResolveTicketRequestSchema.parse({ type: 'close' });
+    expect(result.type).toBe('close');
   });
 
-  it('parses a status change with compensation', () => {
-    const result = UpdateTicketStatusRequestSchema.parse({
-      status: 'resolved',
-      compensation: { responsibleUserId: validUuid, amountCents: 150000 },
+  it('parses a fault with absolute economic impact', () => {
+    const result = ResolveTicketRequestSchema.parse({
+      type: 'fault',
+      primary: {
+        userId: validUuid,
+        role: 'conductor',
+        economic: { type: 'absolute', amountCents: -50000 },
+      },
     });
-    expect(result.compensation?.amountCents).toBe(150000);
+    expect(result.type).toBe('fault');
+    if (result.type === 'fault') {
+      expect(result.primary.economic?.type).toBe('absolute');
+    }
   });
 
-  it('rejects an invalid status', () => {
-    expect(UpdateTicketStatusRequestSchema.safeParse({ status: 'open' }).success).toBe(false);
+  it('parses a fault with percentage economic impact', () => {
+    const result = ResolveTicketRequestSchema.parse({
+      type: 'fault',
+      primary: {
+        userId: validUuid,
+        role: 'rentador',
+        economic: { type: 'percentage', percentage: 10 },
+      },
+    });
+    expect(result.type).toBe('fault');
   });
 
-  it('rejects compensation with non-positive amountCents', () => {
+  it('parses a fault with reputation impact only', () => {
+    const result = ResolveTicketRequestSchema.parse({
+      type: 'fault',
+      primary: {
+        userId: validUuid,
+        role: 'conductor',
+        reputation: { scoreDeduction: 1.0 },
+      },
+    });
+    expect(result.type).toBe('fault');
+    if (result.type === 'fault') {
+      expect(result.primary.reputation?.scoreDeduction).toBe(1.0);
+    }
+  });
+
+  it('parses a fault with both primary and counterpart', () => {
+    const result = ResolveTicketRequestSchema.parse({
+      type: 'fault',
+      primary: {
+        userId: validUuid,
+        role: 'conductor',
+        economic: { type: 'absolute', amountCents: -50000 },
+        reputation: { scoreDeduction: 1.5 },
+      },
+      counterpart: {
+        userId: validUuid2,
+        role: 'rentador',
+        economic: { type: 'absolute', amountCents: 50000 },
+      },
+    });
+    expect(result.type).toBe('fault');
+    if (result.type === 'fault') {
+      expect(result.counterpart?.role).toBe('rentador');
+    }
+  });
+
+  it('rejects fault without primary', () => {
     expect(
-      UpdateTicketStatusRequestSchema.safeParse({
-        status: 'resolved',
-        compensation: { responsibleUserId: validUuid, amountCents: 0 },
+      ResolveTicketRequestSchema.safeParse({ type: 'fault' }).success,
+    ).toBe(false);
+  });
+
+  it('rejects party impact with no economic nor reputation', () => {
+    expect(
+      ResolveTicketRequestSchema.safeParse({
+        type: 'fault',
+        primary: { userId: validUuid, role: 'conductor' },
       }).success,
+    ).toBe(false);
+  });
+
+  it('rejects absolute amountCents of zero', () => {
+    expect(
+      ResolveTicketRequestSchema.safeParse({
+        type: 'fault',
+        primary: {
+          userId: validUuid,
+          role: 'conductor',
+          economic: { type: 'absolute', amountCents: 0 },
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects percentage outside 1-100', () => {
+    expect(
+      ResolveTicketRequestSchema.safeParse({
+        type: 'fault',
+        primary: {
+          userId: validUuid,
+          role: 'conductor',
+          economic: { type: 'percentage', percentage: 0 },
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      ResolveTicketRequestSchema.safeParse({
+        type: 'fault',
+        primary: {
+          userId: validUuid,
+          role: 'conductor',
+          economic: { type: 'percentage', percentage: 101 },
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects scoreDeduction above 5', () => {
+    expect(
+      ResolveTicketRequestSchema.safeParse({
+        type: 'fault',
+        primary: {
+          userId: validUuid,
+          role: 'conductor',
+          reputation: { scoreDeduction: 6 },
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects unknown resolution type', () => {
+    expect(
+      ResolveTicketRequestSchema.safeParse({ type: 'other' }).success,
     ).toBe(false);
   });
 });

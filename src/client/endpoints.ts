@@ -60,6 +60,11 @@ export const apiEndpoints = {
   reputation: {
     user: (userId: string) => `/reputation/${userId}`,
   },
+  loyalty: {
+    me: '/loyalty/me',
+    myTransactions: '/loyalty/me/transactions',
+    user: (userId: string) => `/loyalty/user/${userId}`,
+  },
 } as const;
 
 export type ApiEndpoints = typeof apiEndpoints;

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LevelUpInfoSchema } from '../loyalty/loyalty';
 
 export const CreateReviewRequestSchema = z.object({
   targetType: z.enum(['vehicle', 'rentador', 'conductor']),
@@ -20,7 +21,9 @@ export const ReviewItemSchema = z.object({
 });
 export type ReviewItem = z.infer<typeof ReviewItemSchema>;
 
-export const CreateReviewResponseSchema = ReviewItemSchema;
+export const CreateReviewResponseSchema = ReviewItemSchema.extend({
+  levelUp: LevelUpInfoSchema.nullable(),
+});
 export type CreateReviewResponse = z.infer<typeof CreateReviewResponseSchema>;
 
 export const RentadorReviewsResponseSchema = z.array(ReviewItemSchema);

@@ -3,6 +3,7 @@ import {
   MessageSchema,
   SendMessageRequestSchema,
   ListMessagesResponseSchema,
+  MarkReadBodySchema,
 } from '../../src/messaging/message.schema';
 
 const validMessage = {
@@ -73,18 +74,46 @@ describe('SendMessageRequestSchema', () => {
 });
 
 describe('ListMessagesResponseSchema', () => {
-  it('parsea lista vacía', () => {
-    const result = ListMessagesResponseSchema.parse({ items: [] });
+  it('parsea lista vacía con lastSeenAt null', () => {
+    const result = ListMessagesResponseSchema.parse({ items: [], lastSeenAt: null });
     expect(result.items).toHaveLength(0);
+    expect(result.lastSeenAt).toBeNull();
   });
 
-  it('parsea lista con mensajes', () => {
-    const result = ListMessagesResponseSchema.parse({ items: [validMessage] });
+  it('parsea lista con mensajes y lastSeenAt', () => {
+    const result = ListMessagesResponseSchema.parse({
+      items: [validMessage],
+      lastSeenAt: '2026-06-14T10:00:00.000Z',
+    });
     expect(result.items).toHaveLength(1);
     expect(result.items[0]?.id).toBe(validMessage.id);
+    expect(result.lastSeenAt).toBe('2026-06-14T10:00:00.000Z');
   });
 
   it('falla si items no es un array', () => {
-    expect(() => ListMessagesResponseSchema.parse({ items: 'no-array' })).toThrow();
+    expect(() =>
+      ListMessagesResponseSchema.parse({ items: 'no-array', lastSeenAt: null }),
+    ).toThrow();
+  });
+
+  it('falla si lastSeenAt no es datetime ISO válido', () => {
+    expect(() =>
+      ListMessagesResponseSchema.parse({ items: [], lastSeenAt: 'no-es-fecha' }),
+    ).toThrow();
+  });
+});
+
+describe('MarkReadBodySchema', () => {
+  it('parsea un lastReadAt válido', () => {
+    const result = MarkReadBodySchema.parse({ lastReadAt: '2026-06-14T10:00:00.000Z' });
+    expect(result.lastReadAt).toBe('2026-06-14T10:00:00.000Z');
+  });
+
+  it('falla si lastReadAt no es datetime ISO válido', () => {
+    expect(() => MarkReadBodySchema.parse({ lastReadAt: 'no-es-fecha' })).toThrow();
+  });
+
+  it('falla si falta lastReadAt', () => {
+    expect(() => MarkReadBodySchema.parse({})).toThrow();
   });
 });
