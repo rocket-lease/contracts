@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const TicketStatusSchema = z.enum(['open', 'under_review', 'resolved', 'rejected']);
+export const TicketStatusSchema = z.enum(['open', 'under_review', 'resolved', 'closed']);
 export type TicketStatus = z.infer<typeof TicketStatusSchema>;
 export const TICKET_STATUS = TicketStatusSchema.enum;
 
@@ -59,14 +59,39 @@ export const RateTicketRequestSchema = z.object({
 });
 export type RateTicketRequest = z.infer<typeof RateTicketRequestSchema>;
 
-export const TicketCompensationSchema = z.object({
-  responsibleUserId: z.string().uuid(),
-  amountCents: z.number().int().positive(),
-});
-export type TicketCompensation = z.infer<typeof TicketCompensationSchema>;
+export const TicketImpactEconomicSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('absolute'),
+    amountCents: z.number().int().refine((n) => n !== 0, 'Monto no puede ser 0'),
+  }),
+  z.object({
+    type: z.literal('percentage'),
+    percentage: z.number().min(1).max(100),
+  }),
+]);
+export type TicketImpactEconomic = z.infer<typeof TicketImpactEconomicSchema>;
 
-export const UpdateTicketStatusRequestSchema = z.object({
-  status: z.enum(['under_review', 'resolved', 'rejected']),
-  compensation: TicketCompensationSchema.optional(),
+export const TicketImpactReputationSchema = z.object({
+  scoreDeduction: z.number().positive().max(5),
 });
-export type UpdateTicketStatusRequest = z.infer<typeof UpdateTicketStatusRequestSchema>;
+export type TicketImpactReputation = z.infer<typeof TicketImpactReputationSchema>;
+
+export const TicketPartyImpactSchema = z.object({
+  userId: z.string().uuid(),
+  role: z.enum(['conductor', 'rentador']),
+  economic: TicketImpactEconomicSchema.optional(),
+  reputation: TicketImpactReputationSchema.optional(),
+}).refine((v) => v.economic !== undefined || v.reputation !== undefined, {
+  message: 'Al menos un tipo de impacto debe estar presente',
+});
+export type TicketPartyImpact = z.infer<typeof TicketPartyImpactSchema>;
+
+export const ResolveTicketRequestSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('close') }),
+  z.object({
+    type: z.literal('fault'),
+    primary: TicketPartyImpactSchema,
+    counterpart: TicketPartyImpactSchema.optional(),
+  }),
+]);
+export type ResolveTicketRequest = z.infer<typeof ResolveTicketRequestSchema>;
