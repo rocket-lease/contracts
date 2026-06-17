@@ -12,6 +12,7 @@ export type CreateReviewRequest = z.infer<typeof CreateReviewRequestSchema>;
 export const ReviewItemSchema = z.object({
   id: z.string().uuid(),
   reservationId: z.string().uuid(),
+  reviewerId: z.string().uuid(),
   reviewerName: z.string(),
   targetType: z.enum(['vehicle', 'rentador', 'conductor']),
   rating: z.number().int().min(1).max(5),
