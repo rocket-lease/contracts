@@ -35,6 +35,7 @@ describe('ReviewItemSchema', () => {
   const valid = {
     id: '018f8b3c-4d0e-7000-8000-000000000001',
     reservationId: '018f8b3c-4d0e-7000-8000-000000000002',
+    reviewerId: '018f8b3c-4d0e-7000-8000-000000000003',
     reviewerName: 'John',
     targetType: 'conductor',
     rating: 5,

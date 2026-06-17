@@ -185,6 +185,7 @@ describe('CreateReviewResponseSchema — levelUp extension', () => {
     const response = CreateReviewResponseSchema.parse({
       id: validUuid,
       reservationId: validUuid,
+      reviewerId: validUuid,
       reviewerName: 'Juan',
       targetType: 'vehicle',
       rating: 5,
@@ -206,6 +207,7 @@ describe('CreateReviewResponseSchema — levelUp extension', () => {
     const response = CreateReviewResponseSchema.parse({
       id: validUuid,
       reservationId: validUuid,
+      reviewerId: validUuid,
       reviewerName: 'Juan',
       targetType: 'vehicle',
       rating: 4,
