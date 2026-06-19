@@ -5,6 +5,7 @@ export const InAppNotificationSchema = z.object({
   title: z.string(),
   body: z.string(),
   url: z.string().nullable(),
+  imageUrl: z.string().nullable(),
   readAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
 });
