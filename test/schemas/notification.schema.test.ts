@@ -12,6 +12,7 @@ const valid = {
   title: 'Reserva confirmada',
   body: 'Tu reserva del Toyota Corolla fue confirmada.',
   url: '/reservas/018f8b3c-4d0e-7000-8000-000000000002',
+  imageUrl: null,
   readAt: null,
   createdAt: validDatetime,
 };
@@ -24,6 +25,11 @@ describe('InAppNotificationSchema', () => {
   it('parses a read notification with null url', () => {
     const read = { ...valid, url: null, readAt: validDatetime };
     expect(InAppNotificationSchema.parse(read)).toEqual(read);
+  });
+
+  it('parses a notification with an image url', () => {
+    const withImage = { ...valid, imageUrl: 'https://cdn.example.com/car.jpg' };
+    expect(InAppNotificationSchema.parse(withImage)).toEqual(withImage);
   });
 
   it('rejects a non-uuid id', () => {
