@@ -35,3 +35,4 @@ export * from './ticket-message/ticket-message.schema';
 export * from './dashboard/dashboard';
 export * from './reputation/reputation';
 export * from './loyalty/loyalty';
+export * from './schemas/recommendation.schema';
