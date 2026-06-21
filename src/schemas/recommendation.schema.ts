@@ -49,5 +49,6 @@ export type SearchAlternative = z.infer<typeof SearchAlternativeSchema>;
 
 export const SearchAlternativesResponseSchema = z.object({
   alternatives: z.array(SearchAlternativeSchema),
+  message: z.string().optional(),
 });
 export type SearchAlternativesResponse = z.infer<typeof SearchAlternativesResponseSchema>;
