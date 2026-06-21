@@ -19,5 +19,11 @@ export type SendMessageResponse = z.infer<typeof SendMessageResponseSchema>;
 
 export const ListMessagesResponseSchema = z.object({
   items: z.array(MessageSchema),
+  lastSeenAt: z.string().datetime().nullable(),
 });
 export type ListMessagesResponse = z.infer<typeof ListMessagesResponseSchema>;
+
+export const MarkReadBodySchema = z.object({
+  lastReadAt: z.string().datetime(),
+});
+export type MarkReadBody = z.infer<typeof MarkReadBodySchema>;
